@@ -1,0 +1,44 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(shvav-8 VERSION 0.1.0 LANGUAGES CXX)
+
+##################################################
+# create the target and set its properties
+
+add_executable(shvav-8)
+add_subdirectory(src/)
+
+# add src/ as include dir
+target_include_directories(
+  shvav-8
+  PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/
+)
+
+# set compile flags
+set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU>")
+set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
+target_compile_options(
+  shvav-8
+  PRIVATE
+  $<${gcc_like_cxx}:-Wall -Wextra -Wpedantic>
+  $<${msvc_cxx}:-W3>
+)
+
+##################################################
+# installation instructions
+
+install(
+  TARGETS shvav-8
+  DESTINATION bin/
+)
+##################################################
+# build an installer
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_PACKAGE_FILE_NAME shvav-8-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_VENDOR MeirKlemp)
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_CURRENT_SOURCE_DIR}/LICENSE)
+include(CPack)
+
+##################################################
