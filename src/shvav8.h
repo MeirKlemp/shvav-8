@@ -15,16 +15,16 @@ class Shvav8 {
      */
     void next();
     void reset();
-    void load(u8 *memory);
+    void load(u8 *memory, usize size = 0xDFF);
 
    public:
     struct Registers {
-        u8 v[0x10];      // general purpose registers
-        u16 i;           // register ususally used as a pointer
-        u8 dt = 0;       // delay timer register
-        u8 st = 0;       // sound timer register
-        u16 pc = 0x200;  // program counter register
-        u8 sp = 0;       // stack pointer register
+        u8 v[0x10] = {0};  // general purpose registers
+        u16 i;             // register ususally used as a pointer
+        u8 dt = 0;         // delay timer register
+        u8 st = 0;         // sound timer register
+        u16 pc = 0x200;    // program counter register
+        u8 sp = 0;         // stack pointer register
     } reg;
 
     u16 stack[0x10];

@@ -16,15 +16,20 @@ i32 main(i32 argc, const char **argv) {
     interpreter.load(memory);
 
     std::cout << "Running...\n" << std::hex;
-    for (u32 i = 0; i < 6; ++i) {
-        std::cout << i << ':' << interpreter.reg.pc << std::endl;
+    u16 pc, new_pc;
+    while (true) {
+        pc = interpreter.reg.pc;
+        std::cout << pc << '\n';
         interpreter.next();
-	std::cout << "i = " << interpreter.reg.i << std::endl;
+        new_pc = interpreter.reg.pc;
+        if (pc == new_pc) {
+            break;
+        }
     }
 
     for (u32 y = 0; y < 32; ++y) {
         for (u32 x = 0; x < 64; ++x) {
-            u64 mask = 1 << x;
+            u64 mask = 1ull << x;
             std::cout << ((bool)(interpreter.frame_buffer[y] & mask) ? '*' : ' ') << ' ';
         }
         std::cout << '\n';

@@ -30,7 +30,10 @@ void Shvav8::reset() {
     clear_frame_buffer();
 }
 
-void Shvav8::load(u8 *memory) { memcpy(this->memory + 0x200, memory, 0xDFF); }
+void Shvav8::load(u8 *memory, usize size) {
+    usize min = size <= 0xDFF ? size : 0xDFF;
+    memcpy(this->memory + 0x200, memory, min);
+}
 
 void Shvav8::next() {
     // fetch
@@ -67,12 +70,25 @@ std::array<Shvav8::Operation, 0x10> Shvav8::optable = {
     &Shvav8::table8,      &Shvav8::op_9xy0_sne, &Shvav8::op_Annn_ld,   &Shvav8::op_Bnnn_jp,
     &Shvav8::op_Cxkk_rnd, &Shvav8::op_Dxyn_drw, &Shvav8::tableE,       &Shvav8::tableF,
 };
-std::array<Shvav8::Operation, 0xF> Shvav8::optable0 = {&Shvav8::nop};
-std::array<Shvav8::Operation, 0xF> Shvav8::optable8 = {&Shvav8::nop};
-std::array<Shvav8::Operation, 0xF> Shvav8::optableE = {&Shvav8::nop};
-std::array<Shvav8::Operation, 0x66> Shvav8::optableF = {&Shvav8::nop};
+std::array<Shvav8::Operation, 0xF> Shvav8::optable0;
+std::array<Shvav8::Operation, 0xF> Shvav8::optable8;
+std::array<Shvav8::Operation, 0xF> Shvav8::optableE;
+std::array<Shvav8::Operation, 0x66> Shvav8::optableF;
 
 Shvav8::Shvav8(bool) {
+    for (usize i = 0; i < optable0.size(); ++i) {
+        optable0[i] = &Shvav8::nop;
+    }
+    for (usize i = 0; i < optable8.size(); ++i) {
+        optable8[i] = &Shvav8::nop;
+    }
+    for (usize i = 0; i < optableE.size(); ++i) {
+        optableE[i] = &Shvav8::nop;
+    }
+    for (usize i = 0; i < optableF.size(); ++i) {
+        optableF[i] = &Shvav8::nop;
+    }
+
     optable0[0x0] = &Shvav8::op_00E0_cls;
     optable0[0xE] = &Shvav8::op_00EE_ret;
 
@@ -98,6 +114,7 @@ Shvav8::Shvav8(bool) {
     optableF[0x33] = &Shvav8::op_Fx33_ld;
     optableF[0x55] = &Shvav8::op_Fx55_ld;
     optableF[0x65] = &Shvav8::op_Fx65_ld;
+
 }
 Shvav8 Shvav8::optables_initializer(true);
 
@@ -194,7 +211,7 @@ void Shvav8::op_Dxyn_drw() {
     u8 vx = reg.v[get_x()], vy = reg.v[get_y()];
     for (u8 dy = 0; dy < n; ++dy) {
         for (u8 dx = 0; dx < 8; ++dx) {
-            u8 mask = 1 << dx;
+            u8 mask = 1 << (7 - dx);
             bool pixel = memory[reg.i + dy] & mask;
             if (draw_pixel(vx + dx, vy + dy, pixel)) {
                 collision = true;

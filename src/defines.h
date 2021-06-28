@@ -1,9 +1,12 @@
 #pragma once
 
+#include <cstddef>
+
 using u8 = unsigned char;
 using u16 = unsigned short;
 using u32 = unsigned int;
 using u64 = unsigned long long;
+using usize = size_t;
 
 using i8 = signed char;
 using i16 = signed short;
