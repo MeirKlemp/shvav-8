@@ -6,7 +6,7 @@
 namespace shvav8 {
 
 Shvav8::Shvav8()
-    : memory{
+    : m_memory{
           0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
           0x20, 0x60, 0x20, 0x20, 0x70,  // 1
           0xF0, 0x10, 0xF0, 0x80, 0xF0,  // 2
@@ -26,25 +26,25 @@ Shvav8::Shvav8()
       } {}
 
 void Shvav8::reset() {
-    reg = Shvav8::Registers();
+    m_reg = Shvav8::Registers();
     clear_frame_buffer();
 }
 
 void Shvav8::load(u8 *memory, usize size) {
     usize min = size <= 0xDFF ? size : 0xDFF;
-    memcpy(this->memory + 0x200, memory, min);
+    memcpy(m_memory + 0x200, memory, min);
 }
 
 void Shvav8::next() {
     // fetch
-    m_opcode = memory[reg.pc] << 8;
-    m_opcode += memory[reg.pc + 1];
-    reg.pc += 2;
-    if (reg.dt > 0) {
-        reg.dt -= 1;
+    m_opcode = m_memory[m_reg.pc] << 8;
+    m_opcode += m_memory[m_reg.pc + 1];
+    m_reg.pc += 2;
+    if (m_reg.dt > 0) {
+        m_reg.dt -= 1;
     }
-    if (reg.st > 0) {
-        reg.st -= 1;
+    if (m_reg.st > 0) {
+        m_reg.st -= 1;
     }
 
     // decode
@@ -57,12 +57,12 @@ void Shvav8::next() {
 bool Shvav8::draw_pixel(u8 x, u8 y, bool draw) {
     y %= 32;
     u64 mask = draw << (x % 64);
-    bool collision = frame_buffer[y] & mask;
-    frame_buffer[y] ^= mask;
+    bool collision = m_frame_buffer[y] & mask;
+    m_frame_buffer[y] ^= mask;
     return collision;
 }
 
-void Shvav8::clear_frame_buffer() { memset(frame_buffer, 0, 0x40); }
+void Shvav8::clear_frame_buffer() { memset(m_frame_buffer, 0, 0x40); }
 
 std::array<Shvav8::Operation, 0x10> Shvav8::optable = {
     &Shvav8::table0,      &Shvav8::op_1nnn_jp,  &Shvav8::op_2nnn_call, &Shvav8::op_3xkk_se,
@@ -116,7 +116,7 @@ Shvav8::Shvav8(bool) {
     optableF[0x65] = &Shvav8::op_Fx65_ld;
 
 }
-Shvav8 Shvav8::optables_initializer(true);
+Shvav8 Shvav8::s_optables_initializer(true);
 
 void Shvav8::table0() {
     if (m_opcode >> 4 == 0xE) {
@@ -143,127 +143,127 @@ inline u8 Shvav8::get_y() const { return (m_opcode & 0x00F0) >> 4; }
 inline u8 Shvav8::get_n() const { return m_opcode & 0x000F; }
 
 void Shvav8::op_00E0_cls() { clear_frame_buffer(); }
-void Shvav8::op_00EE_ret() { reg.pc = stack[reg.sp--]; }
-void Shvav8::op_1nnn_jp() { reg.pc = get_nnn(); }
+void Shvav8::op_00EE_ret() { m_reg.pc = m_stack[m_reg.sp--]; }
+void Shvav8::op_1nnn_jp() { m_reg.pc = get_nnn(); }
 void Shvav8::op_2nnn_call() {
-    reg.sp += 1;
-    stack[reg.sp] = reg.pc;
+    m_reg.sp += 1;
+    m_stack[m_reg.sp] = m_reg.pc;
 
-    reg.pc = get_nnn();
+    m_reg.pc = get_nnn();
 }
 void Shvav8::op_3xkk_se() {
-    if (reg.v[get_x()] == get_kk()) {
-        reg.pc += 2;
+    if (m_reg.v[get_x()] == get_kk()) {
+        m_reg.pc += 2;
     }
 }
 void Shvav8::op_4xkk_sne() {
-    if (reg.v[get_x()] != get_kk()) {
-        reg.pc += 2;
+    if (m_reg.v[get_x()] != get_kk()) {
+        m_reg.pc += 2;
     }
 }
 void Shvav8::op_5xy0_se() {
-    if (reg.v[get_x()] != reg.v[get_y()]) {
-        reg.pc += 2;
+    if (m_reg.v[get_x()] != m_reg.v[get_y()]) {
+        m_reg.pc += 2;
     }
 }
-void Shvav8::op_6xkk_ld() { reg.v[get_x()] = get_kk(); }
-void Shvav8::op_7xkk_add() { reg.v[get_x()] += get_kk(); }
-void Shvav8::op_8xy0_ld() { reg.v[get_x()] = reg.v[get_y()]; }
-void Shvav8::op_8xy1_or() { reg.v[get_x()] |= reg.v[get_y()]; }
-void Shvav8::op_8xy2_and() { reg.v[get_x()] &= reg.v[get_y()]; }
-void Shvav8::op_8xy3_xor() { reg.v[get_x()] ^= reg.v[get_y()]; }
+void Shvav8::op_6xkk_ld() { m_reg.v[get_x()] = get_kk(); }
+void Shvav8::op_7xkk_add() { m_reg.v[get_x()] += get_kk(); }
+void Shvav8::op_8xy0_ld() { m_reg.v[get_x()] = m_reg.v[get_y()]; }
+void Shvav8::op_8xy1_or() { m_reg.v[get_x()] |= m_reg.v[get_y()]; }
+void Shvav8::op_8xy2_and() { m_reg.v[get_x()] &= m_reg.v[get_y()]; }
+void Shvav8::op_8xy3_xor() { m_reg.v[get_x()] ^= m_reg.v[get_y()]; }
 void Shvav8::op_8xy4_add() {
     u8 x = get_x(), y = get_y();
-    reg.v[0xF] = reg.v[x] > 0xFF - reg.v[y];  // Vf = carry
-    reg.v[x] += reg.v[y];
+    m_reg.v[0xF] = m_reg.v[x] > 0xFF - m_reg.v[y];  // Vf = carry
+    m_reg.v[x] += m_reg.v[y];
 }
 void Shvav8::op_8xy5_sub() {
     u8 x = get_x(), y = get_y();
-    reg.v[0xF] = reg.v[x] > reg.v[y];  // Vf = NOT borrow
-    reg.v[x] -= reg.v[y];
+    m_reg.v[0xF] = m_reg.v[x] > m_reg.v[y];  // Vf = NOT borrow
+    m_reg.v[x] -= m_reg.v[y];
 }
 void Shvav8::op_8xy6_shr() {
     u8 x = get_x();
-    reg.v[0xF] = reg.v[x] & 0x01;
-    reg.v[x] >>= 1;
+    m_reg.v[0xF] = m_reg.v[x] & 0x01;
+    m_reg.v[x] >>= 1;
 }
 void Shvav8::op_8xy7_subn() {
     u8 x = get_x(), y = get_y();
-    reg.v[0xF] = reg.v[y] > reg.v[x];  // Vf = NOT borrow
-    reg.v[x] = reg.v[y] - reg.v[x];
+    m_reg.v[0xF] = m_reg.v[y] > m_reg.v[x];  // Vf = NOT borrow
+    m_reg.v[x] = m_reg.v[y] - m_reg.v[x];
 }
 void Shvav8::op_8xyE_shl() {
     u8 x = get_x();
-    reg.v[0xF] = reg.v[x] & 0x80;
-    reg.v[x] <<= 1;
+    m_reg.v[0xF] = m_reg.v[x] & 0x80;
+    m_reg.v[x] <<= 1;
 }
 void Shvav8::op_9xy0_sne() {
-    if (reg.v[get_x()] != reg.v[get_y()]) {
-        reg.pc += 2;
+    if (m_reg.v[get_x()] != m_reg.v[get_y()]) {
+        m_reg.pc += 2;
     }
 }
-void Shvav8::op_Annn_ld() { reg.i = get_nnn(); }
-void Shvav8::op_Bnnn_jp() { reg.pc = reg.v[0] + get_nnn(); }
-void Shvav8::op_Cxkk_rnd() { reg.v[get_x()] = rand() && get_kk(); }
+void Shvav8::op_Annn_ld() { m_reg.i = get_nnn(); }
+void Shvav8::op_Bnnn_jp() { m_reg.pc = m_reg.v[0] + get_nnn(); }
+void Shvav8::op_Cxkk_rnd() { m_reg.v[get_x()] = rand() && get_kk(); }
 void Shvav8::op_Dxyn_drw() {
     bool collision = false;
     u8 n = get_n();
-    u8 vx = reg.v[get_x()], vy = reg.v[get_y()];
+    u8 vx = m_reg.v[get_x()], vy = m_reg.v[get_y()];
     for (u8 dy = 0; dy < n; ++dy) {
         for (u8 dx = 0; dx < 8; ++dx) {
             u8 mask = 1 << (7 - dx);
-            bool pixel = memory[reg.i + dy] & mask;
+            bool pixel = m_memory[m_reg.i + dy] & mask;
             if (draw_pixel(vx + dx, vy + dy, pixel)) {
                 collision = true;
             }
         }
     }
 
-    reg.v[0xF] = collision;
+    m_reg.v[0xF] = collision;
 }
 void Shvav8::op_Ex9E_skp() {
-    if (keypad[reg.v[get_x()]]) {
-        reg.pc += 2;
+    if (m_keypad[m_reg.v[get_x()]]) {
+        m_reg.pc += 2;
     }
 }
 void Shvav8::op_ExA1_sknp() {
-    if (!keypad[reg.v[get_x()]]) {
-        reg.pc += 2;
+    if (!m_keypad[m_reg.v[get_x()]]) {
+        m_reg.pc += 2;
     }
 }
-void Shvav8::op_Fx07_ld() { reg.v[get_x()] = reg.dt; }
+void Shvav8::op_Fx07_ld() { m_reg.v[get_x()] = m_reg.dt; }
 void Shvav8::op_Fx0A_ld() {
     i8 keypress = -1;
     for (u8 i = 0; i < 0xF; ++i) {
-        if (keypad[i]) {
+        if (m_keypad[i]) {
             keypress = i;
         }
     }
 
     if (keypress == -1) {
-        reg.pc -= 2;
+        m_reg.pc -= 2;
     } else {
-        reg.v[get_x()] = keypress;
+        m_reg.v[get_x()] = keypress;
     }
 }
-void Shvav8::op_Fx15_ld() { reg.dt = reg.v[get_x()]; }
-void Shvav8::op_Fx18_ld() { reg.st = reg.v[get_x()]; }
-void Shvav8::op_Fx1E_add() { reg.i += reg.v[get_x()]; }
-void Shvav8::op_Fx29_ld() { reg.i = reg.v[get_x()] * 5; }
+void Shvav8::op_Fx15_ld() { m_reg.dt = m_reg.v[get_x()]; }
+void Shvav8::op_Fx18_ld() { m_reg.st = m_reg.v[get_x()]; }
+void Shvav8::op_Fx1E_add() { m_reg.i += m_reg.v[get_x()]; }
+void Shvav8::op_Fx29_ld() { m_reg.i = m_reg.v[get_x()] * 5; }
 void Shvav8::op_Fx33_ld() {
-    u8 vx = reg.v[get_x()];
-    memory[reg.i] = vx / 100;
-    memory[reg.i + 1] = vx % 100 / 10;
-    memory[reg.i + 2] = vx % 10;
+    u8 vx = m_reg.v[get_x()];
+    m_memory[m_reg.i] = vx / 100;
+    m_memory[m_reg.i + 1] = vx % 100 / 10;
+    m_memory[m_reg.i + 2] = vx % 10;
 }
 void Shvav8::op_Fx55_ld() {
     for (u8 i = 0; i < 0xF; ++i) {
-        memory[reg.i + i] = reg.v[i];
+        m_memory[m_reg.i + i] = m_reg.v[i];
     }
 }
 void Shvav8::op_Fx65_ld() {
     for (u8 i = 0; i < 0xF; ++i) {
-        reg.v[i] = memory[reg.i + i];
+        m_reg.v[i] = m_memory[m_reg.i + i];
     }
 }
 void Shvav8::nop() {}

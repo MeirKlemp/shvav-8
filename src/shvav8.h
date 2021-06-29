@@ -17,7 +17,7 @@ class Shvav8 {
     void reset();
     void load(u8 *memory, usize size = 0xDFF);
 
-   public:
+   private:
     struct Registers {
         u8 v[0x10] = {0};  // general purpose registers
         u16 i;             // register ususally used as a pointer
@@ -25,15 +25,17 @@ class Shvav8 {
         u8 st = 0;         // sound timer register
         u16 pc = 0x200;    // program counter register
         u8 sp = 0;         // stack pointer register
-    } reg;
+    } m_reg;
 
-    u16 stack[0x10];
-    u8 memory[0xFFF];
-    u64 frame_buffer[0x20] = {0};
-    bool keypad[0xF];
+    u16 m_stack[0x10];
+    u8 m_memory[0xFFF];
+    u64 m_frame_buffer[0x20] = {0};
+    bool m_keypad[0xF];
 
-   private:
     u16 m_opcode;
+
+    bool draw_pixel(u8 x, u8 y, bool draw);
+    void clear_frame_buffer();
 
     using Operation = void (Shvav8::*)();
     static std::array<Operation, 0x10> optable;
@@ -43,16 +45,12 @@ class Shvav8 {
     static std::array<Operation, 0x66> optableF;
 
     Shvav8(bool);
-    static Shvav8 optables_initializer;
+    static Shvav8 s_optables_initializer;
 
     void table0();
     void table8();
     void tableE();
     void tableF();
-
-   private:
-    bool draw_pixel(u8 x, u8 y, bool draw);
-    void clear_frame_buffer();
 
     // opcode parsers
     inline u16 get_nnn() const;
