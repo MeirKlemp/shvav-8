@@ -5,8 +5,8 @@
 
 namespace shvav8 {
 
-Shvav8::Shvav8()
-    : m_memory{
+Shvav8::Shvav8(Display& display)
+    : m_memory{ // builtin font-set
           0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
           0x20, 0x60, 0x20, 0x20, 0x70,  // 1
           0xF0, 0x10, 0xF0, 0x80, 0xF0,  // 2
@@ -23,14 +23,15 @@ Shvav8::Shvav8()
           0xE0, 0x90, 0x90, 0x90, 0xE0,  // D
           0xF0, 0x80, 0xF0, 0x80, 0xF0,  // E
           0xF0, 0x80, 0xF0, 0x80, 0x80,  // F
-      } {}
+      },
+	m_display(display) {}
 
 void Shvav8::reset() {
     m_reg = Shvav8::Registers();
-    clear_frame_buffer();
+    m_display.clear();
 }
 
-void Shvav8::load(u8 *memory, usize size) {
+void Shvav8::load(u8* memory, usize size) {
     usize min = size <= 0xDFF ? size : 0xDFF;
     memcpy(m_memory + 0x200, memory, min);
 }
@@ -54,16 +55,6 @@ void Shvav8::next() {
     (this->*op)();
 }
 
-bool Shvav8::draw_pixel(u8 x, u8 y, bool draw) {
-    y %= 32;
-    u64 mask = draw << (x % 64);
-    bool collision = m_frame_buffer[y] & mask;
-    m_frame_buffer[y] ^= mask;
-    return collision;
-}
-
-void Shvav8::clear_frame_buffer() { memset(m_frame_buffer, 0, 0x40); }
-
 std::array<Shvav8::Operation, 0x10> Shvav8::optable = {
     &Shvav8::table0,      &Shvav8::op_1nnn_jp,  &Shvav8::op_2nnn_call, &Shvav8::op_3xkk_se,
     &Shvav8::op_4xkk_sne, &Shvav8::op_5xy0_se,  &Shvav8::op_6xkk_ld,   &Shvav8::op_7xkk_add,
@@ -75,7 +66,9 @@ std::array<Shvav8::Operation, 0xF> Shvav8::optable8;
 std::array<Shvav8::Operation, 0xF> Shvav8::optableE;
 std::array<Shvav8::Operation, 0x66> Shvav8::optableF;
 
-Shvav8::Shvav8(bool) {
+// TODO: remove this when refactoring the optables to be constant
+static Display s_display;
+Shvav8::Shvav8(bool) : m_display(s_display) {
     for (usize i = 0; i < optable0.size(); ++i) {
         optable0[i] = &Shvav8::nop;
     }
@@ -114,7 +107,6 @@ Shvav8::Shvav8(bool) {
     optableF[0x33] = &Shvav8::op_Fx33_ld;
     optableF[0x55] = &Shvav8::op_Fx55_ld;
     optableF[0x65] = &Shvav8::op_Fx65_ld;
-
 }
 Shvav8 Shvav8::s_optables_initializer(true);
 
@@ -142,7 +134,7 @@ inline u8 Shvav8::get_x() const { return (m_opcode & 0x0F00) >> 8; }
 inline u8 Shvav8::get_y() const { return (m_opcode & 0x00F0) >> 4; }
 inline u8 Shvav8::get_n() const { return m_opcode & 0x000F; }
 
-void Shvav8::op_00E0_cls() { clear_frame_buffer(); }
+void Shvav8::op_00E0_cls() { m_display.clear(); }
 void Shvav8::op_00EE_ret() { m_reg.pc = m_stack[m_reg.sp--]; }
 void Shvav8::op_1nnn_jp() { m_reg.pc = get_nnn(); }
 void Shvav8::op_2nnn_call() {
@@ -212,8 +204,8 @@ void Shvav8::op_Dxyn_drw() {
     for (u8 dy = 0; dy < n; ++dy) {
         for (u8 dx = 0; dx < 8; ++dx) {
             u8 mask = 1 << (7 - dx);
-            bool pixel = m_memory[m_reg.i + dy] & mask;
-            if (draw_pixel(vx + dx, vy + dy, pixel)) {
+            bool draw = m_memory[m_reg.i + dy] & mask;
+            if (draw && m_display.draw(vx + dx, vy + dy)) {
                 collision = true;
             }
         }

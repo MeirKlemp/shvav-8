@@ -3,4 +3,5 @@ target_sources(
   PRIVATE
   main.cpp
   shvav8.cpp
+  display.cpp
 )

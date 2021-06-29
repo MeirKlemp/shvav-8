@@ -1,21 +1,28 @@
 #pragma once
 
 #include <defines.h>
+#include <display.h>
 
 #include <array>
+
+// TODO: temporary, remove it when no need access to pc from main
+i32 main(i32 argc, const char** argv);
 
 namespace shvav8 {
 
 class Shvav8 {
+    // TODO: temporary, remove it when no need access to pc from main
+    friend int ::main(i32 argc, const char** argv);
+
    public:
-    Shvav8();
+    Shvav8(Display& display);
     /**
      * Runs next instruction.
      * Should run with frequency of 60hz.
      */
     void next();
     void reset();
-    void load(u8 *memory, usize size = 0xDFF);
+    void load(u8* memory, usize size = 0xDFF);
 
    private:
     struct Registers {
@@ -29,13 +36,10 @@ class Shvav8 {
 
     u16 m_stack[0x10];
     u8 m_memory[0xFFF];
-    u64 m_frame_buffer[0x20] = {0};
     bool m_keypad[0xF];
+    Display& m_display;
 
     u16 m_opcode;
-
-    bool draw_pixel(u8 x, u8 y, bool draw);
-    void clear_frame_buffer();
 
     using Operation = void (Shvav8::*)();
     static std::array<Operation, 0x10> optable;
