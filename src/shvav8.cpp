@@ -100,7 +100,7 @@ void Shvav8::op_4xkk_sne() {
     }
 }
 void Shvav8::op_5xy0_se() {
-    if (m_reg.v[get_x()] != m_reg.v[get_y()]) {
+    if (m_reg.v[get_x()] == m_reg.v[get_y()]) {
         m_reg.pc += 2;
     }
 }
