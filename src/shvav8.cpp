@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
 
 namespace shvav8 {
 
@@ -49,84 +50,29 @@ void Shvav8::next() {
     }
 
     // decode
-    Operation op = optable[m_opcode >> 12];
+    Operation op = s_optable[m_opcode >> 12];
 
     // execute
     (this->*op)();
 }
 
-std::array<Shvav8::Operation, 0x10> Shvav8::optable = {
-    &Shvav8::table0,      &Shvav8::op_1nnn_jp,  &Shvav8::op_2nnn_call, &Shvav8::op_3xkk_se,
-    &Shvav8::op_4xkk_sne, &Shvav8::op_5xy0_se,  &Shvav8::op_6xkk_ld,   &Shvav8::op_7xkk_add,
-    &Shvav8::table8,      &Shvav8::op_9xy0_sne, &Shvav8::op_Annn_ld,   &Shvav8::op_Bnnn_jp,
-    &Shvav8::op_Cxkk_rnd, &Shvav8::op_Dxyn_drw, &Shvav8::tableE,       &Shvav8::tableF,
-};
-std::array<Shvav8::Operation, 0xF> Shvav8::optable0;
-std::array<Shvav8::Operation, 0xF> Shvav8::optable8;
-std::array<Shvav8::Operation, 0xF> Shvav8::optableE;
-std::array<Shvav8::Operation, 0x66> Shvav8::optableF;
-
-// TODO: remove this when refactoring the optables to be constant
-static Display s_display;
-Shvav8::Shvav8(bool) : m_display(s_display) {
-    for (usize i = 0; i < optable0.size(); ++i) {
-        optable0[i] = &Shvav8::nop;
-    }
-    for (usize i = 0; i < optable8.size(); ++i) {
-        optable8[i] = &Shvav8::nop;
-    }
-    for (usize i = 0; i < optableE.size(); ++i) {
-        optableE[i] = &Shvav8::nop;
-    }
-    for (usize i = 0; i < optableF.size(); ++i) {
-        optableF[i] = &Shvav8::nop;
-    }
-
-    optable0[0x0] = &Shvav8::op_00E0_cls;
-    optable0[0xE] = &Shvav8::op_00EE_ret;
-
-    optable8[0x0] = &Shvav8::op_8xy0_ld;
-    optable8[0x1] = &Shvav8::op_8xy1_or;
-    optable8[0x2] = &Shvav8::op_8xy2_and;
-    optable8[0x3] = &Shvav8::op_8xy3_xor;
-    optable8[0x4] = &Shvav8::op_8xy4_add;
-    optable8[0x5] = &Shvav8::op_8xy5_sub;
-    optable8[0x6] = &Shvav8::op_8xy6_shr;
-    optable8[0x7] = &Shvav8::op_8xy7_subn;
-    optable8[0xE] = &Shvav8::op_8xyE_shl;
-
-    optableE[0x1] = &Shvav8::op_ExA1_sknp;
-    optableE[0xE] = &Shvav8::op_Ex9E_skp;
-
-    optableF[0x07] = &Shvav8::op_Fx07_ld;
-    optableF[0x0A] = &Shvav8::op_Fx0A_ld;
-    optableF[0x15] = &Shvav8::op_Fx15_ld;
-    optableF[0x18] = &Shvav8::op_Fx18_ld;
-    optableF[0x1E] = &Shvav8::op_Fx1E_add;
-    optableF[0x29] = &Shvav8::op_Fx29_ld;
-    optableF[0x33] = &Shvav8::op_Fx33_ld;
-    optableF[0x55] = &Shvav8::op_Fx55_ld;
-    optableF[0x65] = &Shvav8::op_Fx65_ld;
-}
-Shvav8 Shvav8::s_optables_initializer(true);
-
 void Shvav8::table0() {
     if (m_opcode >> 4 == 0xE) {
-        (this->*optable0[m_opcode & 0xF])();
+        (this->*s_optable0[m_opcode & 0xF])();
     } else {
         nop();
     }
 }
-void Shvav8::table8() { (this->*optable8[m_opcode & 0xF])(); }
+void Shvav8::table8() { (this->*s_optable8[m_opcode & 0xF])(); }
 void Shvav8::tableE() {
     u8 v = (m_opcode & 0xF0) >> 4;
     if (v == 0x9 || v == 0xA) {
-        (this->*optableE[m_opcode & 0xF])();
+        (this->*s_optableE[m_opcode & 0xF])();
     } else {
         nop();
     }
 }
-void Shvav8::tableF() { (this->*optableF[m_opcode & 0xFF])(); }
+void Shvav8::tableF() { (this->*s_optableF[m_opcode & 0xFF])(); }
 
 inline u16 Shvav8::get_nnn() const { return m_opcode & 0x0FFF; }
 inline u8 Shvav8::get_kk() const { return m_opcode & 0x00FF; }
@@ -259,5 +205,70 @@ void Shvav8::op_Fx65_ld() {
     }
 }
 void Shvav8::nop() {}
+
+constexpr std::array<Shvav8::Operation, 0x10> Shvav8::init_optable() {
+    return {
+        &Shvav8::table0,      &Shvav8::op_1nnn_jp,  &Shvav8::op_2nnn_call, &Shvav8::op_3xkk_se,
+        &Shvav8::op_4xkk_sne, &Shvav8::op_5xy0_se,  &Shvav8::op_6xkk_ld,   &Shvav8::op_7xkk_add,
+        &Shvav8::table8,      &Shvav8::op_9xy0_sne, &Shvav8::op_Annn_ld,   &Shvav8::op_Bnnn_jp,
+        &Shvav8::op_Cxkk_rnd, &Shvav8::op_Dxyn_drw, &Shvav8::tableE,       &Shvav8::tableF,
+    };
+}
+constexpr std::array<Shvav8::Operation, 0xF> Shvav8::init_optable0() {
+    std::array<Shvav8::Operation, 0xF> result = {};
+    for (usize i = 0; i < result.size(); ++i) {
+        result[i] = &Shvav8::nop;
+    }
+    result[0x0] = &Shvav8::op_00E0_cls;
+    result[0xE] = &Shvav8::op_00EE_ret;
+    return result;
+}
+constexpr std::array<Shvav8::Operation, 0xF> Shvav8::init_optable8() {
+    std::array<Shvav8::Operation, 0xF> result = {};
+    for (usize i = 0; i < result.size(); ++i) {
+        result[i] = &Shvav8::nop;
+    }
+    result[0x0] = &Shvav8::op_8xy0_ld;
+    result[0x1] = &Shvav8::op_8xy1_or;
+    result[0x2] = &Shvav8::op_8xy2_and;
+    result[0x3] = &Shvav8::op_8xy3_xor;
+    result[0x4] = &Shvav8::op_8xy4_add;
+    result[0x5] = &Shvav8::op_8xy5_sub;
+    result[0x6] = &Shvav8::op_8xy6_shr;
+    result[0x7] = &Shvav8::op_8xy7_subn;
+    result[0xE] = &Shvav8::op_8xyE_shl;
+    return result;
+}
+constexpr std::array<Shvav8::Operation, 0xF> Shvav8::init_optableE() {
+    std::array<Shvav8::Operation, 0xF> result = {};
+    for (usize i = 0; i < result.size(); ++i) {
+        result[i] = &Shvav8::nop;
+    }
+    result[0x1] = &Shvav8::op_ExA1_sknp;
+    result[0xE] = &Shvav8::op_Ex9E_skp;
+    return result;
+}
+constexpr std::array<Shvav8::Operation, 0x66> Shvav8::init_optableF() {
+    std::array<Shvav8::Operation, 0x66> result = {};
+    for (usize i = 0; i < result.size(); ++i) {
+        result[i] = &Shvav8::nop;
+    }
+    result[0x07] = &Shvav8::op_Fx07_ld;
+    result[0x0A] = &Shvav8::op_Fx0A_ld;
+    result[0x15] = &Shvav8::op_Fx15_ld;
+    result[0x18] = &Shvav8::op_Fx18_ld;
+    result[0x1E] = &Shvav8::op_Fx1E_add;
+    result[0x29] = &Shvav8::op_Fx29_ld;
+    result[0x33] = &Shvav8::op_Fx33_ld;
+    result[0x55] = &Shvav8::op_Fx55_ld;
+    result[0x65] = &Shvav8::op_Fx65_ld;
+    return result;
+}
+
+const std::array<Shvav8::Operation, 0x10> Shvav8::s_optable = Shvav8::init_optable();
+const std::array<Shvav8::Operation, 0xF> Shvav8::s_optable0 = Shvav8::init_optable0();
+const std::array<Shvav8::Operation, 0xF> Shvav8::s_optable8 = Shvav8::init_optable8();
+const std::array<Shvav8::Operation, 0xF> Shvav8::s_optableE = Shvav8::init_optableE();
+const std::array<Shvav8::Operation, 0x66> Shvav8::s_optableF = Shvav8::init_optableF();
 
 }  // namespace shvav8

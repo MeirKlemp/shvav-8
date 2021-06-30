@@ -41,27 +41,17 @@ class Shvav8 {
 
     u16 m_opcode;
 
-    using Operation = void (Shvav8::*)();
-    static std::array<Operation, 0x10> optable;
-    static std::array<Operation, 0xF> optable0;
-    static std::array<Operation, 0xF> optable8;
-    static std::array<Operation, 0xF> optableE;
-    static std::array<Operation, 0x66> optableF;
-
-    Shvav8(bool);
-    static Shvav8 s_optables_initializer;
-
     void table0();
     void table8();
     void tableE();
     void tableF();
 
     // opcode parsers
-    inline u16 get_nnn() const;
-    inline u8 get_kk() const;
-    inline u8 get_x() const;
-    inline u8 get_y() const;
-    inline u8 get_n() const;
+    u16 get_nnn() const;
+    u8 get_kk() const;
+    u8 get_x() const;
+    u8 get_y() const;
+    u8 get_n() const;
 
     // instructions
     void op_00E0_cls();
@@ -99,6 +89,19 @@ class Shvav8 {
     void op_Fx55_ld();
     void op_Fx65_ld();
     void nop();
+
+    using Operation = void (Shvav8::*)();
+    constexpr static std::array<Operation, 0x10> init_optable();
+    constexpr static std::array<Operation, 0xF> init_optable0();
+    constexpr static std::array<Operation, 0xF> init_optable8();
+    constexpr static std::array<Operation, 0xF> init_optableE();
+    constexpr static std::array<Operation, 0x66> init_optableF();
+
+    const static std::array<Operation, 0x10> s_optable;
+    const static std::array<Operation, 0xF> s_optable0;
+    const static std::array<Operation, 0xF> s_optable8;
+    const static std::array<Operation, 0xF> s_optableE;
+    const static std::array<Operation, 0x66> s_optableF;
 };
 
 }  // namespace shvav8
