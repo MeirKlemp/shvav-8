@@ -24,6 +24,11 @@ target_compile_options(
   $<${gcc_like_cxx}:-Wall -Wextra -Wpedantic>
   $<${msvc_cxx}:-W3>
 )
+target_compile_features(
+  shvav-8
+  PRIVATE
+  cxx_std_17
+)
 
 ##################################################
 # installation instructions
