@@ -3,6 +3,7 @@
 #include <defines.h>
 #include <display.h>
 
+#include <algorithm>
 #include <array>
 
 // TODO: temporary, remove it when no need access to pc from main
@@ -22,21 +23,30 @@ class Shvav8 {
      */
     void next();
     void reset();
-    void load(u8* memory, usize size = 0xDFF);
+    template <typename Iterator>
+    void load(Iterator& rom_it, const usize size = ROM_SIZE) {
+        const usize clamped_size = std::min<usize>(size, ROM_SIZE);
+        std::copy_n(rom_it, clamped_size, m_memory.begin() + PC_INIT);
+    }
 
    private:
+    constexpr static u16 PC_INIT = 0x200;
+    constexpr static usize MEMORY_SIZE = 0x1000;
+    constexpr static usize ROM_SIZE = MEMORY_SIZE - PC_INIT;
+    constexpr static usize SPRITE_WIDTH = 8;
+
     struct Registers {
-        u8 v[0x10] = {0};  // general purpose registers
-        u16 i;             // register ususally used as a pointer
-        u8 dt = 0;         // delay timer register
-        u8 st = 0;         // sound timer register
-        u16 pc = 0x200;    // program counter register
-        u8 sp = 0;         // stack pointer register
+        std::array<u8, 0x10> v = {0};  // general purpose registers
+        u16 i;                         // register ususally used as a pointer
+        u8 dt = 0;                     // delay timer register
+        u8 st = 0;                     // sound timer register
+        u16 pc = PC_INIT;              // program counter register
+        u8 sp = 0;                     // stack pointer register
     } m_reg;
 
-    u16 m_stack[0x10];
-    u8 m_memory[0xFFF];
-    bool m_keypad[0xF];
+    std::array<u16, 0x10> m_stack;
+    std::array<u8, MEMORY_SIZE> m_memory;
+    std::array<bool, 0x10> m_keypad = {false};
     Display& m_display;
 
     u16 m_opcode;

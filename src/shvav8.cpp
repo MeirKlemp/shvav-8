@@ -1,9 +1,5 @@
 #include "shvav8.h"
 
-#include <cstdlib>
-#include <cstring>
-#include <algorithm>
-
 namespace shvav8 {
 
 Shvav8::Shvav8(Display& display)
@@ -29,12 +25,8 @@ Shvav8::Shvav8(Display& display)
 
 void Shvav8::reset() {
     m_reg = Shvav8::Registers();
+    m_keypad.fill(false);
     m_display.clear();
-}
-
-void Shvav8::load(u8* memory, usize size) {
-    usize min = size <= 0xDFF ? size : 0xDFF;
-    memcpy(m_memory + 0x200, memory, min);
 }
 
 void Shvav8::next() {
@@ -50,7 +42,7 @@ void Shvav8::next() {
     }
 
     // decode
-    Operation op = s_optable[m_opcode >> 12];
+    const Operation op = s_optable[m_opcode >> 12];
 
     // execute
     (this->*op)();
@@ -65,8 +57,8 @@ void Shvav8::table0() {
 }
 void Shvav8::table8() { (this->*s_optable8[m_opcode & 0xF])(); }
 void Shvav8::tableE() {
-    u8 v = (m_opcode & 0xF0) >> 4;
-    if (v == 0x9 || v == 0xA) {
+    const u8 first_byte_hi = (m_opcode & 0xF0) >> 4;
+    if (first_byte_hi == 0x9 || first_byte_hi == 0xA) {
         (this->*s_optableE[m_opcode & 0xF])();
     } else {
         nop();
@@ -111,27 +103,27 @@ void Shvav8::op_8xy1_or() { m_reg.v[get_x()] |= m_reg.v[get_y()]; }
 void Shvav8::op_8xy2_and() { m_reg.v[get_x()] &= m_reg.v[get_y()]; }
 void Shvav8::op_8xy3_xor() { m_reg.v[get_x()] ^= m_reg.v[get_y()]; }
 void Shvav8::op_8xy4_add() {
-    u8 x = get_x(), y = get_y();
-    m_reg.v[0xF] = m_reg.v[x] > 0xFF - m_reg.v[y];  // Vf = carry
+    const u8 x = get_x(), y = get_y();
+    m_reg.v[0xF] = m_reg.v[x] > (0xFF - m_reg.v[y]);  // Vf = carry
     m_reg.v[x] += m_reg.v[y];
 }
 void Shvav8::op_8xy5_sub() {
-    u8 x = get_x(), y = get_y();
+    const u8 x = get_x(), y = get_y();
     m_reg.v[0xF] = m_reg.v[x] > m_reg.v[y];  // Vf = NOT borrow
     m_reg.v[x] -= m_reg.v[y];
 }
 void Shvav8::op_8xy6_shr() {
-    u8 x = get_x();
+    const u8 x = get_x();
     m_reg.v[0xF] = m_reg.v[x] & 0x01;
     m_reg.v[x] >>= 1;
 }
 void Shvav8::op_8xy7_subn() {
-    u8 x = get_x(), y = get_y();
+    const u8 x = get_x(), y = get_y();
     m_reg.v[0xF] = m_reg.v[y] > m_reg.v[x];  // Vf = NOT borrow
     m_reg.v[x] = m_reg.v[y] - m_reg.v[x];
 }
 void Shvav8::op_8xyE_shl() {
-    u8 x = get_x();
+    const u8 x = get_x();
     m_reg.v[0xF] = m_reg.v[x] & 0x80;
     m_reg.v[x] <<= 1;
 }
@@ -145,12 +137,12 @@ void Shvav8::op_Bnnn_jp() { m_reg.pc = m_reg.v[0] + get_nnn(); }
 void Shvav8::op_Cxkk_rnd() { m_reg.v[get_x()] = rand() && get_kk(); }
 void Shvav8::op_Dxyn_drw() {
     bool collision = false;
-    u8 n = get_n();
-    u8 vx = m_reg.v[get_x()], vy = m_reg.v[get_y()];
+    const u8 n = get_n();
+    const u8 vx = m_reg.v[get_x()], vy = m_reg.v[get_y()];
     for (u8 dy = 0; dy < n; ++dy) {
-        for (u8 dx = 0; dx < 8; ++dx) {
-            u8 mask = 1 << (7 - dx);
-            bool draw = m_memory[m_reg.i + dy] & mask;
+        for (u8 dx = 0; dx < SPRITE_WIDTH; ++dx) {
+            const u8 mask = 1 << (SPRITE_WIDTH - dx - 1);
+            const bool draw = m_memory[m_reg.i + dy] & mask;
             if (draw && m_display.draw(vx + dx, vy + dy)) {
                 collision = true;
             }
@@ -172,7 +164,7 @@ void Shvav8::op_ExA1_sknp() {
 void Shvav8::op_Fx07_ld() { m_reg.v[get_x()] = m_reg.dt; }
 void Shvav8::op_Fx0A_ld() {
     i8 keypress = -1;
-    for (u8 i = 0; i < 0xF; ++i) {
+    for (u8 i = 0; i < m_keypad.size(); ++i) {
         if (m_keypad[i]) {
             keypress = i;
         }
@@ -189,18 +181,18 @@ void Shvav8::op_Fx18_ld() { m_reg.st = m_reg.v[get_x()]; }
 void Shvav8::op_Fx1E_add() { m_reg.i += m_reg.v[get_x()]; }
 void Shvav8::op_Fx29_ld() { m_reg.i = m_reg.v[get_x()] * 5; }
 void Shvav8::op_Fx33_ld() {
-    u8 vx = m_reg.v[get_x()];
+    const u8 vx = m_reg.v[get_x()];
     m_memory[m_reg.i] = vx / 100;
     m_memory[m_reg.i + 1] = vx % 100 / 10;
     m_memory[m_reg.i + 2] = vx % 10;
 }
 void Shvav8::op_Fx55_ld() {
-    for (u8 i = 0; i < 0xF; ++i) {
+    for (u8 i = 0; i < m_reg.v.size(); ++i) {
         m_memory[m_reg.i + i] = m_reg.v[i];
     }
 }
 void Shvav8::op_Fx65_ld() {
-    for (u8 i = 0; i < 0xF; ++i) {
+    for (u8 i = 0; i < m_reg.v.size(); ++i) {
         m_reg.v[i] = m_memory[m_reg.i + i];
     }
 }
