@@ -1,3 +1,4 @@
+#include <exceptions.h>
 #include <shvav8.h>
 
 #include <fstream>
@@ -7,6 +8,12 @@ i32 main(i32 argc, const char **argv) {
     if (argc != 2) {
         std::cout << "Usage: " << argv[0] << " <ROM>\n";
         return 1;
+    }
+
+    try {
+        throw shvav8::StackOverflowException(0x201, 0x00EE);
+    } catch (const shvav8::StackOverflowException &e) {
+        std::cout << e << std::endl;
     }
 
     shvav8::Display display;

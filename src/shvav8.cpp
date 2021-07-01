@@ -1,5 +1,7 @@
 #include "shvav8.h"
 
+#include <exceptions.h>
+
 namespace shvav8 {
 
 Shvav8::Shvav8(Display& display)
@@ -76,6 +78,10 @@ void Shvav8::op_00E0_cls() { m_display.clear(); }
 void Shvav8::op_00EE_ret() { m_reg.pc = m_stack[m_reg.sp--]; }
 void Shvav8::op_1nnn_jp() { m_reg.pc = get_nnn(); }
 void Shvav8::op_2nnn_call() {
+    if (m_reg.sp >= m_stack.size()) {
+        throw StackOverflowException(m_reg.pc, m_opcode);
+    }
+
     m_reg.sp += 1;
     m_stack[m_reg.sp] = m_reg.pc;
 
