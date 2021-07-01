@@ -32,6 +32,10 @@ void Shvav8::reset() {
 }
 
 void Shvav8::next() {
+    if (m_reg.pc >= m_memory.size()) {
+        throw MemoryOverflowException(m_reg.pc, m_opcode);
+    }
+
     // fetch
     m_opcode = m_memory[m_reg.pc] << 8;
     m_opcode += m_memory[m_reg.pc + 1];
@@ -75,7 +79,13 @@ inline u8 Shvav8::get_y() const { return (m_opcode & 0x00F0) >> 4; }
 inline u8 Shvav8::get_n() const { return m_opcode & 0x000F; }
 
 void Shvav8::op_00E0_cls() { m_display.clear(); }
-void Shvav8::op_00EE_ret() { m_reg.pc = m_stack[m_reg.sp--]; }
+void Shvav8::op_00EE_ret() {
+    if (m_reg.sp == 0) {
+        throw StackUnderflowException(m_reg.pc, m_opcode);
+    }
+
+    m_reg.pc = m_stack[m_reg.sp--];
+}
 void Shvav8::op_1nnn_jp() { m_reg.pc = get_nnn(); }
 void Shvav8::op_2nnn_call() {
     if (m_reg.sp >= m_stack.size()) {
@@ -158,12 +168,22 @@ void Shvav8::op_Dxyn_drw() {
     m_reg.v[0xF] = collision;
 }
 void Shvav8::op_Ex9E_skp() {
-    if (m_keypad[m_reg.v[get_x()]]) {
+    const u8 key_index = m_reg.v[get_x()];
+    if (key_index >= m_keypad.size()) {
+        throw KeyOutOfRangeException(m_reg.pc, m_opcode);
+    }
+
+    if (m_keypad[key_index]) {
         m_reg.pc += 2;
     }
 }
 void Shvav8::op_ExA1_sknp() {
-    if (!m_keypad[m_reg.v[get_x()]]) {
+    const u8 key_index = m_reg.v[get_x()];
+    if (key_index >= m_keypad.size()) {
+        throw KeyOutOfRangeException(m_reg.pc, m_opcode);
+    }
+
+    if (!m_keypad[key_index]) {
         m_reg.pc += 2;
     }
 }
@@ -187,17 +207,29 @@ void Shvav8::op_Fx18_ld() { m_reg.st = m_reg.v[get_x()]; }
 void Shvav8::op_Fx1E_add() { m_reg.i += m_reg.v[get_x()]; }
 void Shvav8::op_Fx29_ld() { m_reg.i = m_reg.v[get_x()] * 5; }
 void Shvav8::op_Fx33_ld() {
+    if (m_reg.i + 2 >= m_memory.size()) {
+        throw MemoryOverflowException(m_reg.pc, m_opcode);
+    }
+
     const u8 vx = m_reg.v[get_x()];
     m_memory[m_reg.i] = vx / 100;
     m_memory[m_reg.i + 1] = vx % 100 / 10;
     m_memory[m_reg.i + 2] = vx % 10;
 }
 void Shvav8::op_Fx55_ld() {
+    if (m_reg.i + m_reg.v.size() > m_memory.size()) {
+        throw MemoryOverflowException(m_reg.pc, m_opcode);
+    }
+
     for (u8 i = 0; i < m_reg.v.size(); ++i) {
         m_memory[m_reg.i + i] = m_reg.v[i];
     }
 }
 void Shvav8::op_Fx65_ld() {
+    if (m_reg.i + m_reg.v.size() > m_memory.size()) {
+        throw MemoryOverflowException(m_reg.pc, m_opcode);
+    }
+
     for (u8 i = 0; i < m_reg.v.size(); ++i) {
         m_reg.v[i] = m_memory[m_reg.i + i];
     }

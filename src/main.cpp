@@ -15,6 +15,21 @@ i32 main(i32 argc, const char **argv) {
     } catch (const shvav8::StackOverflowException &e) {
         std::cout << e << std::endl;
     }
+    try {
+        throw shvav8::StackUnderflowException(0x201, 0x00EE);
+    } catch (const shvav8::StackUnderflowException &e) {
+        std::cout << e << std::endl;
+    }
+    try {
+        throw shvav8::MemoryOverflowException(0x1000, 0x00EE);
+    } catch (const shvav8::MemoryOverflowException &e) {
+        std::cout << e << std::endl;
+    }
+    try {
+        throw shvav8::KeyOutOfRangeException(0x201, 0x00EE);
+    } catch (const shvav8::KeyOutOfRangeException &e) {
+        std::cout << e << std::endl;
+    }
 
     shvav8::Display display;
     shvav8::Shvav8 interpreter(display);

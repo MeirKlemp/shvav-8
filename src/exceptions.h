@@ -10,46 +10,45 @@
 
 namespace shvav8 {
 
-class Exception {
-   public:
-    virtual ~Exception() = default;
-    virtual std::string_view message() const = 0;
+struct StackOverflow {
+    constexpr static auto name() { return "Stack overflow"; }
+};
+struct StackUnderflow {
+    constexpr static auto name() { return "Stack underflow"; }
+};
+struct MemoryOverflow {
+    constexpr static auto name() { return "Memory overflow"; }
+};
+struct KeyOutOfRange {
+    constexpr static auto name() { return "Key out of range"; }
 };
 
-std::ostream& operator<<(std::ostream& ostream, const Exception& exception);
-
-struct Overflow {};
-struct Underflow {};
-
 template <class T>
-class StackException : public Exception {
-    static_assert(std::is_same<T, Overflow>() || std::is_same<T, Underflow>(),
-                  "T must be type of Overflow or Underflow");
-
+class Exception {
    public:
-    StackException(u16 pc, u16 opcode) : m_message(format_message(pc, opcode)) {}
+    Exception(u16 pc, u16 opcode) : m_message(format_message(pc, opcode)) {}
 
-    std::string_view message() const override { return m_message; }
+    std::string_view message() const { return m_message; }
 
    private:
     const std::string m_message;
 
     static std::string format_message(u16 pc, u16 opcode) {
         std::ostringstream sstream;
-        sstream << std::hex << std::setfill('0');
-
-        if constexpr (std::is_same<T, Overflow>()) {
-            sstream << "Stack overflow exception at position $";
-        } else {
-            sstream << "Stack underflow exception at position $";
-        }
-
-        sstream << std::setw(4) << pc << " (opcode: $" << std::setw(4) << opcode << ")";
+        sstream << std::hex << std::setfill('0') << T::name() << " exception at position $"
+                << std::setw(4) << pc << " (opcode: $" << std::setw(4) << opcode << ")";
         return sstream.str();
     }
 };
 
-using StackOverflowException = StackException<Overflow>;
-using StackUnderflowException = StackException<Underflow>;
+template <class T>
+std::ostream& operator<<(std::ostream& ostream, const Exception<T>& exception) {
+    return ostream << exception.message();
+}
+
+using StackOverflowException = Exception<StackOverflow>;
+using StackUnderflowException = Exception<StackUnderflow>;
+using MemoryOverflowException = Exception<MemoryOverflow>;
+using KeyOutOfRangeException = Exception<KeyOutOfRange>;
 
 }  // namespace shvav8
