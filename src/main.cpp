@@ -10,27 +10,6 @@ i32 main(i32 argc, const char **argv) {
         return 1;
     }
 
-    try {
-        throw shvav8::StackOverflowException(0x201, 0x00EE);
-    } catch (const shvav8::StackOverflowException &e) {
-        std::cout << e << std::endl;
-    }
-    try {
-        throw shvav8::StackUnderflowException(0x201, 0x00EE);
-    } catch (const shvav8::StackUnderflowException &e) {
-        std::cout << e << std::endl;
-    }
-    try {
-        throw shvav8::MemoryOverflowException(0x1000, 0x00EE);
-    } catch (const shvav8::MemoryOverflowException &e) {
-        std::cout << e << std::endl;
-    }
-    try {
-        throw shvav8::KeyOutOfRangeException(0x201, 0x00EE);
-    } catch (const shvav8::KeyOutOfRangeException &e) {
-        std::cout << e << std::endl;
-    }
-
     shvav8::Display display;
     shvav8::Shvav8 interpreter(display);
     std::ifstream rom(argv[1]);
@@ -39,14 +18,18 @@ i32 main(i32 argc, const char **argv) {
     interpreter.load(memory);
 
     std::cout << "Running...\n";
-    u16 pc, new_pc;
-    while (true) {
-        pc = interpreter.m_reg.pc;
-        interpreter.next();
-        new_pc = interpreter.m_reg.pc;
-        if (pc == new_pc) {
-            break;
+    try {
+        u16 pc, new_pc;
+        while (true) {
+            pc = interpreter.m_reg.pc;
+            interpreter.next();
+            new_pc = interpreter.m_reg.pc;
+            if (pc == new_pc) {
+                break;
+            }
         }
+    } catch (const shvav8::Exception &e) {
+        std::cout << e << std::endl;
     }
 
     std::cout << display;

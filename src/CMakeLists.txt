@@ -4,4 +4,5 @@ target_sources(
   main.cpp
   shvav8.cpp
   display.cpp
+  exceptions.cpp
 )

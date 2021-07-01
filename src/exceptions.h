@@ -10,6 +10,14 @@
 
 namespace shvav8 {
 
+class Exception {
+   public:
+    virtual ~Exception() = default;
+    virtual std::string_view message() const = 0;
+};
+
+std::ostream& operator<<(std::ostream& ostream, const Exception& exception);
+
 struct StackOverflow {
     constexpr static auto name() { return "Stack overflow"; }
 };
@@ -24,11 +32,12 @@ struct KeyOutOfRange {
 };
 
 template <class T>
-class Exception {
+class StateException : public Exception {
    public:
-    Exception(u16 pc, u16 opcode) : m_message(format_message(pc, opcode)) {}
+    // TODO: get state when implemented
+    StateException(u16 pc, u16 opcode) : m_message(format_message(pc, opcode)) {}
 
-    std::string_view message() const { return m_message; }
+    std::string_view message() const override { return m_message; }
 
    private:
     const std::string m_message;
@@ -41,14 +50,9 @@ class Exception {
     }
 };
 
-template <class T>
-std::ostream& operator<<(std::ostream& ostream, const Exception<T>& exception) {
-    return ostream << exception.message();
-}
-
-using StackOverflowException = Exception<StackOverflow>;
-using StackUnderflowException = Exception<StackUnderflow>;
-using MemoryOverflowException = Exception<MemoryOverflow>;
-using KeyOutOfRangeException = Exception<KeyOutOfRange>;
+using StackOverflowException = StateException<StackOverflow>;
+using StackUnderflowException = StateException<StackUnderflow>;
+using MemoryOverflowException = StateException<MemoryOverflow>;
+using KeyOutOfRangeException = StateException<KeyOutOfRange>;
 
 }  // namespace shvav8
