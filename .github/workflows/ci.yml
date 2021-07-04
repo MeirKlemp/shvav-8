@@ -30,6 +30,7 @@ jobs:
           - name: Install GLFW dependencies
             run: |
               sudo apt install libxrandr-dev
+              sudo apt install libxinerama1
 
           - name: Build shvav-8
             env:
