@@ -29,7 +29,7 @@ jobs:
 
           - name: Install GLFW dependencies
             run: |
-              sudo apt install libxrandr
+              sudo apt install libxrandr2
 
           - name: Build shvav-8
             env:
