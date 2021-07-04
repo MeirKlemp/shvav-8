@@ -2,25 +2,17 @@ name: CI
 on: [push]
 
 jobs:
-  test-linux-macos:
-      name: ${{matrix.os_name}}-${{matrix.c_compiler}}
-      runs-on: ${{matrix.os}}
+  build-linux:
+      name: linux-${{matrix.c_compiler}}
+      runs-on: ubuntu-latest
       strategy:
           fail-fast: false
           matrix:
               include:
-                  - os_name: linux
-                    c_compiler: gcc
+                  - c_compiler: gcc
                     cxx_compiler: g++
-                    os: ubuntu-latest
-                  - os_name: linux
-                    c_compiler: clang
+                  - c_compiler: clang
                     cxx_compiler: clang++
-                    os: ubuntu-latest
-                  - os_name: macos
-                    c_compiler: clang
-                    cxx_compiler: clang++
-                    os: macos-latest
       steps:
           - name: Checkout shvav-8
             uses: actions/checkout@v2
@@ -35,8 +27,13 @@ jobs:
           - name: Setup Ninja
             uses: seanmiddleditch/gha-setup-ninja@v3
 
+          - name: Install GLFW dependencies
+            run: |
+              sudo apt install libxrandr
+
           - name: Build shvav-8
             env:
+                CC: ${{matrix.c_compiler}}
                 CXX: ${{matrix.cxx_compiler}}
             run: |
                 mkdir build
@@ -54,7 +51,45 @@ jobs:
                 name: shvav-8-${{matrix.os_name}}-${{matrix.c_compiler}}
                 path: build/install/
 
-  test-windows:
+  build-macos:
+      name: macos-clang
+      runs-on: macos-latest
+      steps:
+          - name: Checkout shvav-8
+            uses: actions/checkout@v2
+            with:
+                submodules: 'recursive'
+
+          - name: Setup CMake
+            uses: jwlawson/actions-setup-cmake@v1.8
+            with:
+                cmake-version: '3.16.x'
+
+          - name: Setup Ninja
+            uses: seanmiddleditch/gha-setup-ninja@v3
+
+          - name: Build shvav-8
+            env:
+                CC: clang
+                CXX: clang++
+            run: |
+                mkdir build
+                cd build
+                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release 
+                cmake --build .
+
+          - name: Install shvav-8
+            run: |
+                cd build
+                cmake --install . --prefix ./install
+          - name: Upload shvav-8 package
+            uses: actions/upload-artifact@v2
+            with:
+                name: shvav-8-${{matrix.os_name}}-${{matrix.c_compiler}}
+                path: build/install/
+
+
+  build-windows:
       name: windows-${{matrix.arch}}-msvc
       runs-on: windows-latest
       strategy:
