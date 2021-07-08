@@ -1,6 +1,7 @@
+#include <emulation/exceptions.h>
+#include <emulation/shvav8.h>
+
 #include <GLFW/glfw3.h>
-#include <exceptions.h>
-#include <shvav8.h>
 
 #include <fstream>
 #include <iostream>

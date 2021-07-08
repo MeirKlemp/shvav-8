@@ -2,7 +2,7 @@ target_sources(
   shvav-8
   PRIVATE
   main.cpp
-  shvav8.cpp
-  display.cpp
-  exceptions.cpp
+  emulation/shvav8.cpp
+  emulation/display.cpp
+  emulation/exceptions.cpp
 )

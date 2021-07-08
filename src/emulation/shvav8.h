@@ -1,7 +1,7 @@
 #pragma once
 
 #include <defines.h>
-#include <display.h>
+#include <emulation/display.h>
 
 #include <algorithm>
 #include <array>
