@@ -22,7 +22,7 @@ i32 main(i32 argc, const char **argv) {
         u8 memory[0xDFF];
         rom.read((char *)memory, sizeof(memory));
 
-        shvav8::Display display;
+        shvav8::FrameBuffer display;
         shvav8::Shvav8 interpreter(display);
         interpreter.load(memory);
 

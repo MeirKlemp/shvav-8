@@ -3,6 +3,6 @@ target_sources(
   PRIVATE
   main.cpp
   emulation/shvav8.cpp
-  emulation/display.cpp
+  emulation/frame_buffer.cpp
   emulation/exceptions.cpp
 )

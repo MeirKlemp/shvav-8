@@ -1,7 +1,7 @@
 #pragma once
 
 #include <defines.h>
-#include <emulation/display.h>
+#include <emulation/frame_buffer.h>
 
 #include <algorithm>
 #include <array>
@@ -16,7 +16,7 @@ class Shvav8 {
     friend int ::main(i32 argc, const char** argv);
 
    public:
-    Shvav8(Display& display);
+    Shvav8(FrameBuffer& display);
     /**
      * Runs next instruction.
      * Should run with frequency of 60hz.
@@ -47,7 +47,7 @@ class Shvav8 {
     std::array<u16, 0x10> m_stack;
     std::array<u8, MEMORY_SIZE> m_memory;
     std::array<bool, 0x10> m_keypad = {false};
-    Display& m_display;
+    FrameBuffer& m_display;
 
     u16 m_opcode;
 

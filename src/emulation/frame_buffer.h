@@ -7,7 +7,7 @@
 
 namespace shvav8 {
 
-class Display {
+class FrameBuffer {
    public:
     /**
      * Draws a pixel on the display.
@@ -34,7 +34,7 @@ class Display {
 
     usize index(u8 x, u8 y) const;
 
-    friend std::ostream& operator<<(std::ostream& ostream, const Display& display);
+    friend std::ostream& operator<<(std::ostream& ostream, const FrameBuffer& display);
 };
 
 }  // namespace shvav8
