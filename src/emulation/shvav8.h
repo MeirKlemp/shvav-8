@@ -6,14 +6,11 @@
 #include <algorithm>
 #include <array>
 
-// TODO: temporary, remove it when no need access to pc from main
-i32 main(i32 argc, const char** argv);
-
 namespace shvav8 {
 
 class Shvav8 {
-    // TODO: temporary, remove it when no need access to pc from main
-    friend int ::main(i32 argc, const char** argv);
+    // TODO: temporary, remove it when no need access to pc from App
+    friend class App;
 
    public:
     Shvav8(FrameBuffer& display);
