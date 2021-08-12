@@ -9,14 +9,12 @@
 
 namespace shvav8 {
 
-App::App(const std::string& rom_path) : m_rom_path(rom_path) {}
-
-i32 App::run() {
-    if (!m_rom_path.empty()) {
-        std::ifstream rom(m_rom_path, std::ios::binary);
+App::App(const std::string& rom_path) {
+    if (!rom_path.empty()) {
+        std::ifstream rom(rom_path, std::ios::binary);
         if (!rom) {
-            std::cerr << "Cannot open rom at " << m_rom_path << std::endl;
-            return 2;
+            std::cerr << "Cannot open rom at " << rom_path << std::endl;
+            exit(2);
         }
 
         u8 memory[0xDFF];
