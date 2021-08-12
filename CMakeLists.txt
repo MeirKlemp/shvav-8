@@ -37,13 +37,25 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw)
   message(FATAL_ERROR "Cannot find the dependency glfw. Please clone with git submodule.")
 endif()
 
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/GLAD)
+  message(FATAL_ERROR "Cannot find the dependency GLAD. Please clone with git submodule.")
+endif()
+
 ##################################################
 # link dependencies
+
 add_subdirectory(deps/glfw)
 target_link_libraries(
   shvav-8
   PRIVATE
   glfw
+)
+
+add_subdirectory(deps/GLAD)
+target_link_libraries(
+  shvav-8
+  PRIVATE
+  glad
 )
 
 ##################################################
