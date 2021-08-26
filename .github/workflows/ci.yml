@@ -29,6 +29,7 @@ jobs:
 
           - name: Install GLFW dependencies
             run: |
+              sudo apt-get update
               sudo apt install xorg-dev
 
           - name: Build shvav-8
