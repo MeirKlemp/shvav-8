@@ -46,6 +46,13 @@ jobs:
             run: |
                 cd build
                 cmake --install . --prefix ./install
+          - name: Install LinuxDeploy
+            run: |
+                uses: miurahr/install-linuxdeploy-action@v1
+          - name: Create an Appimage
+            run: |
+                linuxdeploy-x86_64.AppImage --output=appimage --appdir build/install --icon-file=icon.svg
+                ls
           - name: Upload shvav-8 package
             uses: actions/upload-artifact@v2
             with:
