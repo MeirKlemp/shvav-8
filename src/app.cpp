@@ -2,6 +2,7 @@
 
 #include <emulation/exceptions.h>
 #include <emulation/shvav8.h>
+#include <rendering/renderer.h>
 #include <rendering/window.h>
 
 #include <fstream>
@@ -9,7 +10,18 @@
 
 namespace shvav8 {
 
-App::App(const std::string& rom_path) {
+App::App(const char* rom_path) {
+    auto& window = Window::create(640, 480, "Shvav-8");
+    auto renderer = Renderer::create();
+
+    /* Loop until the user closes the window */
+    while (!window.should_close()) {
+        renderer.clear_screen(0.2f, 0.3f, 0.3f);
+        window.update();
+    }
+}
+
+/* Code to run a rom (maybe useful later):
     if (!rom_path.empty()) {
         std::ifstream rom(rom_path, std::ios::binary);
         if (!rom) {
@@ -41,14 +53,6 @@ App::App(const std::string& rom_path) {
 
         std::cout << display;
     }
-
-    if (auto window = shvav8::Window::create(640, 480, "Shvav8")) {
-        /* Loop until the user closes the window */
-        while (!window->should_close()) {
-            window->update();
-        }
-    }
-
-}
+*/
 
 }  // namespace shvav8

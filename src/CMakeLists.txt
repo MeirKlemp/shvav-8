@@ -9,4 +9,5 @@ target_sources(
   emulation/exceptions.cpp
 
   rendering/window.cpp
+  rendering/renderer.cpp
 )

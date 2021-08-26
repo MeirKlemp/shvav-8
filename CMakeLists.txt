@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(shvav-8 VERSION 0.1.0 LANGUAGES CXX)
+project(shvav-8 VERSION 0.1.0 LANGUAGES C CXX)
 
 ##################################################
 # create the target and set its properties
@@ -12,7 +12,7 @@ add_subdirectory(src/)
 target_include_directories(
   shvav-8
   PRIVATE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/
+  src/
 )
 
 # set compile flags
@@ -37,10 +37,6 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw)
   message(FATAL_ERROR "Cannot find the dependency glfw. Please clone with git submodule.")
 endif()
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/GLAD)
-  message(FATAL_ERROR "Cannot find the dependency GLAD. Please clone with git submodule.")
-endif()
-
 ##################################################
 # link dependencies
 
@@ -52,11 +48,6 @@ target_link_libraries(
 )
 
 add_subdirectory(deps/GLAD)
-target_link_libraries(
-  shvav-8
-  PRIVATE
-  glad
-)
 
 ##################################################
 # installation instructions

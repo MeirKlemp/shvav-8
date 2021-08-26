@@ -7,8 +7,8 @@
 namespace shvav8 {
 
 class App {
-    public:
-    App(const std::string& rom_path);
+   public:
+    App(const char* rom_path);
 };
 
-}
+}  // namespace shvav8
