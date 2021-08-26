@@ -29,7 +29,7 @@ jobs:
 
           - name: Install GLFW dependencies
             run: |
-              sudo apt install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev mesa-common-dev
+              sudo apt install xorg-dev
 
           - name: Build shvav-8
             env:
@@ -117,6 +117,7 @@ jobs:
 
           - name: Build shvav-8
             env:
+                CC: cl
                 CXX: cl
             run: |
                 mkdir build
