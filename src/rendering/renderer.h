@@ -17,6 +17,9 @@ class Renderer {
 
     void clear_screen(f32 r, f32 g, f32 b, f32 a = 1.0f);
 
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+
    private:
     Renderer() = default;
     static Renderer& create_impl(bool create = true);

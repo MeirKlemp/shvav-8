@@ -12,7 +12,7 @@ namespace shvav8 {
 
 App::App(const char* rom_path) {
     auto& window = Window::create(640, 480, "Shvav-8");
-    auto renderer = Renderer::create();
+    auto& renderer = Renderer::create();
 
     /* Loop until the user closes the window */
     while (!window.should_close()) {
