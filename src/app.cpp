@@ -14,13 +14,6 @@ App::App(const char* rom_path) {
     auto& window = Window::create(640, 480, "Shvav-8");
     auto& renderer = Renderer::create();
 
-    f32 vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
-
-    u32 vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
     /* Vertex Shader */
     const char* vertex_shader_source =
         "#version 330 core\n"
@@ -77,10 +70,34 @@ App::App(const char* rom_path) {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    /* Vertex Arrays */
+    /* Square's Data */
+    f32 vertices[] = {
+        0.5f,  0.5f,  0.0f,  // top right
+        0.5f,  -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+        -0.5f, 0.5f,  0.0f   // top left
+    };
+    u32 indices[] = {
+        0, 1, 3,  // first triangle
+        1, 2, 3   // second triangle
+    };
+
+    /* Vertex Array */
     u32 vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
+
+    /* Vertex Buffer */
+    u32 vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    /* Element Buffer */
+    u32 ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -88,7 +105,7 @@ App::App(const char* rom_path) {
     /* Loop until the user closes the window */
     while (!window.should_close()) {
         renderer.clear_screen(0.2f, 0.3f, 0.3f);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         window.update();
     }
 }
