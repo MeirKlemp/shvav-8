@@ -30,6 +30,7 @@ Window& Window::create_impl(const i32 width, const i32 height, const char* title
         }
 
         glfwMakeContextCurrent(window);
+        glfwSwapInterval(1);
         glfwSetFramebufferSizeCallback(
             window, [](GLFWwindow* const window, const i32 width, const i32 height) {
                 Window& w = get();

@@ -11,7 +11,9 @@ bool FrameBuffer::draw(const u8 x, const u8 y) {
 
 void FrameBuffer::clear() { m_frame_buffer.fill(0); }
 
-inline usize FrameBuffer::index(const u8 x, const u8 y) const { return y * FrameBuffer::COLUMNS + x; }
+bool FrameBuffer::is_drawn(const u8 x, const u8 y) const { return m_frame_buffer[index(x, y)]; }
+
+usize FrameBuffer::index(const u8 x, const u8 y) const { return y * FrameBuffer::COLUMNS + x; }
 
 std::ostream& operator<<(std::ostream& ostream, const FrameBuffer& display) {
     for (u8 y = 0; y < FrameBuffer::ROWS; ++y) {

@@ -25,6 +25,8 @@ class FrameBuffer {
      */
     void clear();
 
+    bool is_drawn(u8 x, u8 y) const;
+
    public:
     constexpr static usize ROWS = 32;
     constexpr static usize COLUMNS = 64;

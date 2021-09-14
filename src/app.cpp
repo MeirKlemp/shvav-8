@@ -5,6 +5,7 @@
 #include <rendering/renderer.h>
 #include <rendering/window.h>
 
+#include <ctime>
 #include <fstream>
 #include <iostream>
 
@@ -70,17 +71,20 @@ App::App(const char* rom_path) {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    /* Square's Data */
-    f32 vertices[] = {
-        0.5f,  0.5f,  0.0f,  // top right
-        0.5f,  -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f, 0.5f,  0.0f   // top left
-    };
-    u32 indices[] = {
-        0, 1, 3,  // first triangle
-        1, 2, 3   // second triangle
-    };
+    /* Display Verticies */
+    const i32 num_vertex_columns = 65;
+    const i32 num_vertex_rows = 33;
+    const f32 square_width = 0.015625f;  // 1 / 64
+    const f32 square_height = 0.03125;   // 1 / 32
+
+    f32 vertices[2 * num_vertex_rows * num_vertex_columns];  // every vertex has 2 floats (x, y)
+    for (i32 row = 0; row < num_vertex_rows; ++row) {
+        for (i32 column = 0; column < num_vertex_columns; ++column) {
+            i32 index = 2 * (num_vertex_columns * row + column);
+            vertices[index] = -1 + 2 * square_width * column;
+            vertices[index + 1] = -(-1 + 2 * square_height * row);
+        }
+    }
 
     /* Vertex Array */
     u32 vao;
@@ -97,17 +101,63 @@ App::App(const char* rom_path) {
     u32 ebo;
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    /* Loop until the user closes the window */
-    while (!window.should_close()) {
-        renderer.clear_screen(0.2f, 0.3f, 0.3f);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        window.update();
+    std::ifstream rom(rom_path, std::ios::binary);
+    if (!rom) {
+        std::cerr << "Cannot open rom at " << rom_path << std::endl;
+        exit(2);
     }
+
+    u8 memory[0xDFF];
+    rom.read((char*)memory, sizeof(memory));
+
+    shvav8::FrameBuffer display;
+    shvav8::Shvav8 interpreter(display);
+    interpreter.load(memory);
+
+    try {
+        /* Loop until the user closes the window */
+        while (!window.should_close()) {
+            interpreter.next();
+
+            std::vector<u32> indices;
+
+            for (u32 row = 0; row < FrameBuffer::ROWS; ++row) {
+                for (u32 column = 0; column < FrameBuffer::COLUMNS; ++column) {
+                    if (display.is_drawn(column, row)) {
+                        u32 vertex_row_1 = row;
+                        u32 vertex_row_2 = row + 1;
+                        u32 vertex_column_1 = column;
+                        u32 vertex_column_2 = column + 1;
+
+                        // first triangle
+                        indices.push_back(num_vertex_columns * vertex_row_1 + vertex_column_1);
+                        indices.push_back(num_vertex_columns * vertex_row_1 + vertex_column_2);
+                        indices.push_back(num_vertex_columns * vertex_row_2 + vertex_column_1);
+                        // second triangle
+                        indices.push_back(num_vertex_columns * vertex_row_2 + vertex_column_1);
+                        indices.push_back(num_vertex_columns * vertex_row_1 + vertex_column_2);
+                        indices.push_back(num_vertex_columns * vertex_row_2 + vertex_column_2);
+                    }
+                }
+            }
+            if (!indices.empty()) {
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(float), &indices[0],
+                             GL_DYNAMIC_DRAW);
+            }
+
+            renderer.clear_screen(0.2f, 0.3f, 0.3f);
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+            window.update();
+        }
+    } catch (const shvav8::Exception& e) {
+        std::cerr << e << std::endl;
+    }
+
+    std::cout << display;
 }
 
 /* Code to run a rom (maybe useful later):
