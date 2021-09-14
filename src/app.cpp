@@ -5,7 +5,6 @@
 #include <rendering/renderer.h>
 #include <rendering/window.h>
 
-#include <ctime>
 #include <fstream>
 #include <iostream>
 
