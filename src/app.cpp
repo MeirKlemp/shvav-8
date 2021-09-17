@@ -100,8 +100,10 @@ App::App(const char* rom_path) {
     u32 ebo;
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    const u32 max_size = 3 * 2 * FrameBuffer::COLUMNS * FrameBuffer::ROWS * sizeof(f32);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_size, nullptr, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), (void*)0);
     glEnableVertexAttribArray(0);
 
     std::ifstream rom(rom_path, std::ios::binary);
@@ -144,8 +146,7 @@ App::App(const char* rom_path) {
                 }
             }
             if (!indices.empty()) {
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(float), &indices[0],
-                             GL_DYNAMIC_DRAW);
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(f32), &indices[0]);
             }
 
             renderer.clear_screen(0.2f, 0.3f, 0.3f);
