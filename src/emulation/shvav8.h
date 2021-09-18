@@ -9,9 +9,6 @@
 namespace shvav8 {
 
 class Shvav8 {
-    // TODO: temporary, remove it when no need access to pc from App
-    friend class App;
-
    public:
     Shvav8(FrameBuffer& display);
     /**

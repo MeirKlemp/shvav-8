@@ -14,6 +14,10 @@ App::App(const char* rom_path) {
     auto& window = Window::create(640, 480, "Shvav-8");
     auto& renderer = Renderer::create();
 
+    window.on_resize([&renderer](const i32 width, const i32 height) {
+        renderer.set_viewport(0, 0, width, height);
+    });
+
     /* Vertex Shader */
     const char* vertex_shader_source =
         "#version 330 core\n"
@@ -70,42 +74,6 @@ App::App(const char* rom_path) {
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
-    /* Display Verticies */
-    const i32 num_vertex_columns = 65;
-    const i32 num_vertex_rows = 33;
-    const f32 square_width = 0.015625f;  // 1 / 64
-    const f32 square_height = 0.03125;   // 1 / 32
-
-    f32 vertices[2 * num_vertex_rows * num_vertex_columns];  // every vertex has 2 floats (x, y)
-    for (i32 row = 0; row < num_vertex_rows; ++row) {
-        for (i32 column = 0; column < num_vertex_columns; ++column) {
-            i32 index = 2 * (num_vertex_columns * row + column);
-            vertices[index] = -1 + 2 * square_width * column;
-            vertices[index + 1] = -(-1 + 2 * square_height * row);
-        }
-    }
-
-    /* Vertex Array */
-    u32 vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    /* Vertex Buffer */
-    u32 vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    /* Element Buffer */
-    u32 ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    const u32 max_size = 3 * 2 * FrameBuffer::COLUMNS * FrameBuffer::ROWS * sizeof(f32);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_size, nullptr, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(f32), (void*)0);
-    glEnableVertexAttribArray(0);
-
     std::ifstream rom(rom_path, std::ios::binary);
     if (!rom) {
         std::cerr << "Cannot open rom at " << rom_path << std::endl;
@@ -124,33 +92,11 @@ App::App(const char* rom_path) {
         while (!window.should_close()) {
             interpreter.next();
 
-            std::vector<u32> indices;
-
-            for (u32 row = 0; row < FrameBuffer::ROWS; ++row) {
-                for (u32 column = 0; column < FrameBuffer::COLUMNS; ++column) {
-                    if (display.is_drawn(column, row)) {
-                        u32 vertex_row_1 = row;
-                        u32 vertex_row_2 = row + 1;
-                        u32 vertex_column_1 = column;
-                        u32 vertex_column_2 = column + 1;
-
-                        // first triangle
-                        indices.push_back(num_vertex_columns * vertex_row_1 + vertex_column_1);
-                        indices.push_back(num_vertex_columns * vertex_row_1 + vertex_column_2);
-                        indices.push_back(num_vertex_columns * vertex_row_2 + vertex_column_1);
-                        // second triangle
-                        indices.push_back(num_vertex_columns * vertex_row_2 + vertex_column_1);
-                        indices.push_back(num_vertex_columns * vertex_row_1 + vertex_column_2);
-                        indices.push_back(num_vertex_columns * vertex_row_2 + vertex_column_2);
-                    }
-                }
-            }
-            if (!indices.empty()) {
-                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indices.size() * sizeof(f32), &indices[0]);
-            }
-
             renderer.clear_screen(0.2f, 0.3f, 0.3f);
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+            auto squares = display.get_drawn_pixels();
+            renderer.draw_squares(squares, squares.size());
+
             window.update();
         }
     } catch (const shvav8::Exception& e) {
@@ -159,39 +105,5 @@ App::App(const char* rom_path) {
 
     std::cout << display;
 }
-
-/* Code to run a rom (maybe useful later):
-    if (!rom_path.empty()) {
-        std::ifstream rom(rom_path, std::ios::binary);
-        if (!rom) {
-            std::cerr << "Cannot open rom at " << rom_path << std::endl;
-            exit(2);
-        }
-
-        u8 memory[0xDFF];
-        rom.read((char *)memory, sizeof(memory));
-
-        shvav8::FrameBuffer display;
-        shvav8::Shvav8 interpreter(display);
-        interpreter.load(memory);
-
-        std::cout << "Running...\n";
-        try {
-            u16 pc, new_pc;
-            while (true) {
-                pc = interpreter.m_reg.pc;
-                interpreter.next();
-                new_pc = interpreter.m_reg.pc;
-                if (pc == new_pc) {
-                    break;
-                }
-            }
-        } catch (const shvav8::Exception &e) {
-            std::cerr << e << std::endl;
-        }
-
-        std::cout << display;
-    }
-*/
 
 }  // namespace shvav8

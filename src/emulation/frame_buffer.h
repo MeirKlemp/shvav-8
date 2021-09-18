@@ -4,6 +4,7 @@
 
 #include <array>
 #include <iostream>
+#include <vector>
 
 namespace shvav8 {
 
@@ -25,14 +26,16 @@ class FrameBuffer {
      */
     void clear();
 
+    std::vector<u32> get_drawn_pixels() const;
     bool is_drawn(u8 x, u8 y) const;
 
    public:
     constexpr static usize ROWS = 32;
     constexpr static usize COLUMNS = 64;
+    constexpr static usize PIXELS = ROWS * COLUMNS;
 
    private:
-    std::array<bool, ROWS* COLUMNS> m_frame_buffer = {0};
+    std::array<bool, PIXELS> m_frame_buffer = {0};
 
     usize index(u8 x, u8 y) const;
 
