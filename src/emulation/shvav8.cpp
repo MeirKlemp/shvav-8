@@ -140,7 +140,7 @@ void Shvav8::op_8xy7_subn() {
 }
 void Shvav8::op_8xyE_shl() {
     const u8 x = get_x();
-    m_reg.v[0xF] = m_reg.v[x] & 0x80;
+    m_reg.v[0xF] = (m_reg.v[x] & 0x80) >> 7;
     m_reg.v[x] <<= 1;
 }
 void Shvav8::op_9xy0_sne() {

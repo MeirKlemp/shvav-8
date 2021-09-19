@@ -12,6 +12,8 @@
 namespace shvav8 {
 
 App::App(const char* rom_path) {
+    srand((u32)time(0));
+
     auto& window = Window::create(640, 480, "Shvav-8");
     auto& renderer = Renderer::create();
 
