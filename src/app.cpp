@@ -19,27 +19,7 @@ App::App(const char* rom_path) {
         renderer.set_viewport(0, 0, width, height);
     });
 
-    Shader shader(
-        R"(
-#shader vertex
-#version 330 core
-
-layout(location = 0) in vec4 pos;
-
-void main() {
-    gl_Position = vec4(pos.xyz, 1.0);
-}
-
-#shader fragment
-#version 330 core
-
-out vec4 color;
-
-void main() {
-    color = vec4(0.9f, 0.9f, 0.9f, 1.0f);
-}
-)");
-
+    Shader shader = get_shader();
     shader.bind();
 
     std::ifstream rom(rom_path, std::ios::binary);
@@ -73,6 +53,29 @@ void main() {
         std::cerr << e << std::endl;
         std::cerr << display;
     }
+}
+
+Shader App::get_shader() {
+    return Shader(
+        R"(
+#shader vertex
+#version 330 core
+
+layout(location = 0) in vec4 pos;
+
+void main() {
+    gl_Position = vec4(pos.xyz, 1.0);
+}
+
+#shader fragment
+#version 330 core
+
+out vec4 color;
+
+void main() {
+    color = vec4(0.9f, 0.9f, 0.9f, 1.0f);
+}
+)");
 }
 
 }  // namespace shvav8
