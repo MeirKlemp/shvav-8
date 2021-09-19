@@ -12,6 +12,7 @@ class App {
 
    private:
     static class Shader get_shader();
+    static class Shader get_beauty_shader();
 };
 
 }  // namespace shvav8

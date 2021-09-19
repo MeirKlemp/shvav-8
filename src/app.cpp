@@ -17,12 +17,14 @@ App::App(const char* rom_path) {
     auto& window = Window::create(640, 480, "Shvav-8");
     auto& renderer = Renderer::create();
 
-    window.on_resize([&renderer](const i32 width, const i32 height) {
-        renderer.set_viewport(0, 0, width, height);
-    });
-
-    Shader shader = get_shader();
+    Shader shader = get_beauty_shader();
     shader.bind();
+    shader.set_uniform_2f("screen_size", 640, 480);
+
+    window.on_resize([&renderer, &shader](const i32 width, const i32 height) {
+        renderer.set_viewport(0, 0, width, height);
+        shader.set_uniform_2f("screen_size", width, height);
+    });
 
     std::ifstream rom(rom_path, std::ios::binary);
     if (!rom) {
@@ -76,6 +78,32 @@ out vec4 color;
 
 void main() {
     color = vec4(0.9f, 0.9f, 0.9f, 1.0f);
+}
+)");
+}
+
+Shader App::get_beauty_shader() {
+    return Shader(
+        R"(
+#shader vertex
+#version 330 core
+
+layout(location = 0) in vec4 pos;
+
+void main() {
+    gl_Position = vec4(pos.xyz, 1.0);
+}
+
+#shader fragment
+#version 330 core
+
+out vec4 color;
+
+uniform vec2 screen_size;
+
+void main() {
+    vec2 coord = vec2(gl_FragCoord.xy) / screen_size;
+    color = vec4(coord.xy, 0.9f, 1.0f);
 }
 )");
 }
