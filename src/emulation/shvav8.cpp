@@ -150,7 +150,7 @@ void Shvav8::op_9xy0_sne() {
 }
 void Shvav8::op_Annn_ld() { m_reg.i = get_nnn(); }
 void Shvav8::op_Bnnn_jp() { m_reg.pc = m_reg.v[0] + get_nnn(); }
-void Shvav8::op_Cxkk_rnd() { m_reg.v[get_x()] = rand() && get_kk(); }
+void Shvav8::op_Cxkk_rnd() { m_reg.v[get_x()] = (rand() % 256) & get_kk(); }
 void Shvav8::op_Dxyn_drw() {
     bool collision = false;
     const u8 n = get_n();
