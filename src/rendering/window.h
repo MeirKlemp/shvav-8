@@ -9,6 +9,9 @@
 #include <utility>
 #include <vector>
 
+#define SHVAV8_KEY(keyname) GLFW_KEY_##keyname
+#define SHVAV8_ACTION(action) GLFW_##action
+
 namespace shvav8 {
 
 /**
@@ -26,6 +29,7 @@ class Window {
     void title(const std::string& title);
     std::string title() const;
     void on_resize(std::function<void(i32 width, i32 height)> callback);
+    void on_key_event(std::function<void(i32 keycode, i32 action)>);
     bool should_close() const;
     std::pair<i32, i32> get_size() const;
 
@@ -40,6 +44,7 @@ class Window {
     GLFWwindow* m_window;
     std::string m_title;
     std::vector<std::function<void(i32 width, i32 height)>> m_on_resize_callbacks;
+    std::vector<std::function<void(i32 keycode, i32 action)>> m_on_key_event_callbacks;
 };
 
 }  // namespace shvav8

@@ -31,6 +31,8 @@ Window& Window::create_impl(const i32 width, const i32 height, const std::string
 
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
+
+        /* Callbacks */
         glfwSetFramebufferSizeCallback(
             window, [](GLFWwindow* const window, const i32 width, const i32 height) {
                 Window& w = get();
@@ -38,6 +40,13 @@ Window& Window::create_impl(const i32 width, const i32 height, const std::string
                     callback(width, height);
                 }
             });
+        glfwSetKeyCallback(window, [](GLFWwindow* const window, const i32 key, const i32 scancode,
+                                      const i32 action, const i32 mods) {
+            Window& w = get();
+            for (const auto& callback : w.m_on_key_event_callbacks) {
+                callback(key, action);
+            }
+        });
     }
 
     static Window instance(window, title);
@@ -70,6 +79,10 @@ std::string Window::title() const { return m_title; }
 
 void Window::on_resize(std::function<void(i32 width, i32 height)> callback) {
     m_on_resize_callbacks.push_back(callback);
+}
+
+void Window::on_key_event(std::function<void(i32 keycode, i32 action)> callback) {
+    m_on_key_event_callbacks.push_back(callback);
 }
 
 bool Window::should_close() const { return glfwWindowShouldClose(m_window); }

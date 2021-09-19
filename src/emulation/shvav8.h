@@ -17,6 +17,7 @@ class Shvav8 {
      */
     void next();
     void reset();
+    void set_key_state(u8 key, bool pressed);
     template <typename Iterator>
     void load(Iterator& rom_it, const usize size = ROM_SIZE) {
         const usize clamped_size = std::min<usize>(size, ROM_SIZE);
@@ -27,6 +28,7 @@ class Shvav8 {
     constexpr static u16 PC_INIT = 0x200;
     constexpr static usize MEMORY_SIZE = 0x1000;
     constexpr static usize ROM_SIZE = MEMORY_SIZE - PC_INIT;
+    constexpr static u8 KEYS = 0x10;
 
    private:
     constexpr static usize SPRITE_WIDTH = 8;
@@ -42,7 +44,7 @@ class Shvav8 {
 
     std::array<u16, 0x10> m_stack;
     std::array<u8, MEMORY_SIZE> m_memory;
-    std::array<bool, 0x10> m_keypad = {false};
+    std::array<bool, KEYS> m_keypad = {false};
     FrameBuffer& m_display;
 
     u16 m_opcode;

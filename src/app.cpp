@@ -40,6 +40,16 @@ App::App(const char* rom_path) {
     interpreter.load(memory);
 
     window.title(std::string("Shvav8 ") + rom_path);
+    window.on_key_event([&interpreter](const i32 keycode, const i32 action) {
+        if (action == SHVAV8_ACTION(REPEAT)) {
+            return;
+        }
+
+        if (s_keybindings.find(keycode) != s_keybindings.end()) {
+            const bool pressed = action == SHVAV8_ACTION(PRESS);
+            interpreter.set_key_state(s_keybindings[keycode], pressed);
+        }
+    });
 
     try {
         /* Loop until the user closes the window */
@@ -58,6 +68,13 @@ App::App(const char* rom_path) {
         std::cerr << display;
     }
 }
+
+std::unordered_map<i32, u8> App::s_keybindings{
+    {SHVAV8_KEY(1), 1},   {SHVAV8_KEY(2), 2}, {SHVAV8_KEY(3), 3},   {SHVAV8_KEY(4), 0xC},
+    {SHVAV8_KEY(Q), 4},   {SHVAV8_KEY(W), 5}, {SHVAV8_KEY(E), 6},   {SHVAV8_KEY(R), 0xD},
+    {SHVAV8_KEY(A), 7},   {SHVAV8_KEY(S), 8}, {SHVAV8_KEY(D), 9},   {SHVAV8_KEY(F), 0xE},
+    {SHVAV8_KEY(Z), 0XA}, {SHVAV8_KEY(X), 0}, {SHVAV8_KEY(C), 0xB}, {SHVAV8_KEY(V), 0xF},
+};
 
 Shader App::get_shader() {
     return Shader(

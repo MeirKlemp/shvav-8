@@ -31,6 +31,8 @@ void Shvav8::reset() {
     m_display.clear();
 }
 
+void Shvav8::set_key_state(const u8 key, const bool pressed) { m_keypad[key] = pressed; }
+
 void Shvav8::next() {
     if (m_reg.pc >= m_memory.size()) {
         throw MemoryOverflowException(m_reg.pc, m_opcode);
