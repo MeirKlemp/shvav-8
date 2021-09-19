@@ -64,14 +64,14 @@ class Renderer {
     u32 m_vbo;
     u32 m_ebo;
 
-    constexpr static usize VERTEX_COLUMNS = FrameBuffer::COLUMNS + 1;
-    constexpr static usize VERTEX_ROWS = FrameBuffer::ROWS + 1;
-    constexpr static usize VERTEX_COUNT = VERTEX_COLUMNS * VERTEX_ROWS;
-    constexpr static usize INDICES_PER_SQUARE = 3 * 2;
+    constexpr static u32 VERTEX_COLUMNS = FrameBuffer::COLUMNS + 1;
+    constexpr static u32 VERTEX_ROWS = FrameBuffer::ROWS + 1;
+    constexpr static u32 NUM_VERTICES = VERTEX_COLUMNS * VERTEX_ROWS;
+    constexpr static u8 INDICES_PER_SQUARE = 3 * 2;
     constexpr static f32 SQUARE_WIDTH = 1.0f / FrameBuffer::COLUMNS;
     constexpr static f32 SQUARE_HEIGHT = 1.0f / FrameBuffer::ROWS;
 
-    using VertexVector = std::array<f32, 2 * VERTEX_COUNT>;
+    using VertexVector = std::array<f32, 2 * NUM_VERTICES>;
     constexpr static VertexVector initialize_vertices();
 };
 

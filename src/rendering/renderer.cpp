@@ -59,9 +59,9 @@ void Renderer::set_viewport(const i32 x, const i32 y, const i32 width, const i32
 
 constexpr Renderer::VertexVector Renderer::initialize_vertices() {
     VertexVector vertices = {};
-    for (usize row = 0; row < VERTEX_ROWS; ++row) {
-        for (usize column = 0; column < VERTEX_COLUMNS; ++column) {
-            usize index = 2 * (VERTEX_COLUMNS * row + column);
+    for (u32 row = 0; row < VERTEX_ROWS; ++row) {
+        for (u32 column = 0; column < VERTEX_COLUMNS; ++column) {
+            u32 index = 2 * (VERTEX_COLUMNS * row + column);
             vertices[index] = -1 + 2 * SQUARE_WIDTH * column;
             vertices[index + 1] = -(-1 + 2 * SQUARE_HEIGHT * row);
         }
