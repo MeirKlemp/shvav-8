@@ -10,4 +10,5 @@ target_sources(
 
   rendering/window.cpp
   rendering/renderer.cpp
+  rendering/shader.cpp
 )

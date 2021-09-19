@@ -3,6 +3,7 @@
 #include <emulation/exceptions.h>
 #include <emulation/shvav8.h>
 #include <rendering/renderer.h>
+#include <rendering/shader.h>
 #include <rendering/window.h>
 
 #include <fstream>
@@ -18,61 +19,28 @@ App::App(const char* rom_path) {
         renderer.set_viewport(0, 0, width, height);
     });
 
-    /* Vertex Shader */
-    const char* vertex_shader_source =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}";
-    const u32 vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(vertex_shader);
+    Shader shader(
+        R"(
+#shader vertex
+#version 330 core
 
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+layout(location = 0) in vec4 pos;
 
-    /* Fragment Shader */
-    const char* fragment_shader_source =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}";
-    const u32 fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-    glCompileShader(fragment_shader);
+void main() {
+    gl_Position = vec4(pos.xyz, 1.0);
+}
 
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragment_shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
+#shader fragment
+#version 330 core
 
-    /* Shader Program */
-    const u32 shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
+out vec4 color;
 
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shader_program, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
+void main() {
+    color = vec4(0.9f, 0.9f, 0.9f, 1.0f);
+}
+)");
 
-    glUseProgram(shader_program);
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    shader.bind();
 
     std::ifstream rom(rom_path, std::ios::binary);
     if (!rom) {
@@ -92,7 +60,7 @@ App::App(const char* rom_path) {
         while (!window.should_close()) {
             interpreter.next();
 
-            renderer.clear_screen(0.2f, 0.3f, 0.3f);
+            renderer.clear_screen(0.1f, 0.1f, 0.1f);
 
             auto squares = display.get_drawn_pixels();
             renderer.draw_squares(squares, squares.size());
