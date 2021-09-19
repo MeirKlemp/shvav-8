@@ -221,7 +221,8 @@ void Shvav8::op_Fx55_ld() {
         throw MemoryOverflowException(m_reg.pc, m_opcode);
     }
 
-    for (u8 i = 0; i < m_reg.v.size(); ++i) {
+    const u8 x = get_x();
+    for (u8 i = 0; i <= x; ++i) {
         m_memory[m_reg.i + i] = m_reg.v[i];
     }
 }
@@ -230,7 +231,8 @@ void Shvav8::op_Fx65_ld() {
         throw MemoryOverflowException(m_reg.pc, m_opcode);
     }
 
-    for (u8 i = 0; i < m_reg.v.size(); ++i) {
+    const u8 x = get_x();
+    for (u8 i = 0; i <= x; ++i) {
         m_reg.v[i] = m_memory[m_reg.i + i];
     }
 }
