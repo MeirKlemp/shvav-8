@@ -59,7 +59,7 @@ u32 Shader::get_uniform_location(const std::string& name) {
     int location = glGetUniformLocation(m_prog_id, name.c_str());
 
     if (location == -1) {
-        std::cerr << "warning: uniform " << name << " doesn't exist." << std::endl;
+        std::cerr << "Warning: uniform " << name << " doesn't exist." << std::endl;
     }
 
     m_uniform_location_cache[name] = location;
@@ -84,10 +84,10 @@ u32 Shader::compile_shader(u32 shader_type, const std::string& source) {
         int length;
         glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
 
-        char* info = (char*)_malloca(length * sizeof(char));
+        char* info = new char[length * sizeof(char)];
         glGetShaderInfoLog(shader_id, length, &length, info);
         std::cerr << info << std::endl;
-        _freea(info);
+        delete[] info;
 
         glDeleteShader(shader_id);
         return 0;
