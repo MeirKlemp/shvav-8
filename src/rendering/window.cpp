@@ -4,12 +4,12 @@
 
 namespace shvav8 {
 
-Window& Window::create(const i32 width, const i32 height, const char* const title) {
+Window& Window::create(const i32 width, const i32 height, const std::string& title) {
     return create_impl(width, height, title);
 }
-Window& Window::get() { return create_impl(0, 0, 0, false); }
+Window& Window::get() { return create_impl(0, 0, "", false); }
 
-Window& Window::create_impl(const i32 width, const i32 height, const char* title,
+Window& Window::create_impl(const i32 width, const i32 height, const std::string& title,
                             const bool create) {
     GLFWwindow* window = nullptr;
     if (create) {
@@ -24,7 +24,7 @@ Window& Window::create_impl(const i32 width, const i32 height, const char* title
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-        window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+        window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         if (!window) {
             throw std::runtime_error{"Glfw failed to create window"};
         }
@@ -40,11 +40,11 @@ Window& Window::create_impl(const i32 width, const i32 height, const char* title
             });
     }
 
-    static Window instance(window);
+    static Window instance(window, title);
     return instance;
 }
 
-Window::Window(GLFWwindow* window) : m_window(window) {
+Window::Window(GLFWwindow* window, const std::string& title) : m_window(window), m_title(title) {
     if (window == nullptr) {
         throw std::runtime_error{"Window not initialized"};
     }
@@ -60,6 +60,13 @@ void Window::update() {
     glfwSwapBuffers(m_window);
     glfwPollEvents();
 }
+
+void Window::title(const std::string& title) {
+    glfwSetWindowTitle(m_window, title.c_str());
+    m_title = title;
+}
+
+std::string Window::title() const { return m_title; }
 
 void Window::on_resize(std::function<void(i32 width, i32 height)> callback) {
     m_on_resize_callbacks.push_back(callback);

@@ -48,12 +48,14 @@ void main() {
         exit(2);
     }
 
-    u8 memory[0xDFF];
+    u8 memory[shvav8::Shvav8::ROM_SIZE];
     rom.read((char*)memory, sizeof(memory));
 
     shvav8::FrameBuffer display;
     shvav8::Shvav8 interpreter(display);
     interpreter.load(memory);
+
+    window.title(std::string("Shvav8 ") + rom_path);
 
     try {
         /* Loop until the user closes the window */
@@ -69,9 +71,8 @@ void main() {
         }
     } catch (const shvav8::Exception& e) {
         std::cerr << e << std::endl;
+        std::cerr << display;
     }
-
-    std::cout << display;
 }
 
 }  // namespace shvav8

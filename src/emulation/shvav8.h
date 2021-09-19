@@ -23,10 +23,12 @@ class Shvav8 {
         std::copy_n(rom_it, clamped_size, m_memory.begin() + PC_INIT);
     }
 
-   private:
+   public:
     constexpr static u16 PC_INIT = 0x200;
     constexpr static usize MEMORY_SIZE = 0x1000;
     constexpr static usize ROM_SIZE = MEMORY_SIZE - PC_INIT;
+
+   private:
     constexpr static usize SPRITE_WIDTH = 8;
 
     struct Registers {
