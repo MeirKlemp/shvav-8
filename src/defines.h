@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+namespace shvav8 {
+
 using u8 = unsigned char;
 using u16 = unsigned short;
 using u32 = unsigned int;
@@ -29,3 +31,14 @@ static_assert(sizeof(i64) == 8, "Size of i64 must be 8 byte");
 static_assert(sizeof(f32) == 4, "Size of f32 must be 4 byte");
 static_assert(sizeof(f64) == 8, "Size of f64 must be 8 byte");
 
+#if defined(_WIN64) || defined(_WIN32)
+#define SHVAV8_WINDOWS
+#elif defined(__linux__)
+#define SHVAV8_LINUX
+#elif defined(__APPLE__)
+#define SHVAV8_MACOS
+#else
+#error Not supported os
+#endif
+
+}  // namespace shvav8

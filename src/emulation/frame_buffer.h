@@ -4,10 +4,11 @@
 
 #include <array>
 #include <iostream>
+#include <vector>
 
 namespace shvav8 {
 
-class Display {
+class FrameBuffer {
    public:
     /**
      * Draws a pixel on the display.
@@ -19,22 +20,26 @@ class Display {
      * 	        If not in range, then the value will be wraped around.
      * @return True if collided, else False.
      */
-    bool draw(u8 x, u8 y);
+    bool draw(u32 x, u32 y);
     /**
      * Sets all the pixels on the display to 0.
      */
     void clear();
 
+    std::vector<u32> get_drawn_pixels() const;
+    bool is_drawn(u32 x, u32 y) const;
+
    public:
-    constexpr static usize ROWS = 32;
-    constexpr static usize COLUMNS = 64;
+    constexpr static u32 ROWS = 32;
+    constexpr static u32 COLUMNS = 64;
+    constexpr static u32 PIXELS = ROWS * COLUMNS;
 
    private:
-    std::array<bool, ROWS* COLUMNS> m_frame_buffer = {0};
+    std::array<bool, PIXELS> m_frame_buffer = {0};
 
-    usize index(u8 x, u8 y) const;
+    u32 index(u32 x, u32 y) const;
 
-    friend std::ostream& operator<<(std::ostream& ostream, const Display& display);
+    friend std::ostream& operator<<(std::ostream& ostream, const FrameBuffer& display);
 };
 
 }  // namespace shvav8

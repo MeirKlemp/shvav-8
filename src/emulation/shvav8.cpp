@@ -1,10 +1,10 @@
 #include "shvav8.h"
 
-#include <exceptions.h>
+#include <emulation/exceptions.h>
 
 namespace shvav8 {
 
-Shvav8::Shvav8(Display& display)
+Shvav8::Shvav8(FrameBuffer& display)
     : m_memory{ // builtin font-set
           0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
           0x20, 0x60, 0x20, 0x20, 0x70,  // 1
