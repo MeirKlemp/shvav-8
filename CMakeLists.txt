@@ -37,6 +37,10 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw)
   message(FATAL_ERROR "Cannot find the dependency glfw. Please clone with git submodule.")
 endif()
 
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL)
+  message(FATAL_ERROR "Cannot find the dependency SDL. Please clone with git submodule.")
+endif()
+
 ##################################################
 # link dependencies
 
@@ -48,6 +52,15 @@ target_link_libraries(
 )
 
 add_subdirectory(deps/GLAD)
+
+set(SDL_STATIC TRUE)
+add_subdirectory(deps/SDL)
+target_link_libraries(
+  shvav-8
+  PRIVATE
+  SDL2::SDL2main
+  SDL2::SDL2-static
+)
 
 ##################################################
 # installation instructions
