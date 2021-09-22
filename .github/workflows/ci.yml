@@ -45,7 +45,11 @@ jobs:
           - name: Install shvav-8
             run: |
                 cd build
-                cmake --install . --prefix ./install
+                mkdir install
+                mkdir install/bin
+                cp ./shvav-8 ./install/bin/shvav-8
+                cp ../LICENSE ./install/LICENSE
+                cp ../README.md ./install/README.md
           - name: Upload shvav-8 package
             uses: actions/upload-artifact@v2
             with:

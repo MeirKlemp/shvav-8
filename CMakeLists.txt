@@ -70,6 +70,7 @@ install(
   TARGETS shvav-8
   DESTINATION bin/
 )
+
 ##################################################
 # build an installer
 
