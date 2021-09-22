@@ -123,7 +123,7 @@ jobs:
             run: |
                 mkdir build
                 cd build
-                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release 
+                cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DHAVE_LIBC=TRUE
                 cmake --build .
 
           - name: Install shvav-8
