@@ -54,12 +54,13 @@ target_link_libraries(
 add_subdirectory(deps/GLAD)
 
 set(SDL_STATIC TRUE)
+set(SDL_SHARED FALSE)
 add_subdirectory(deps/SDL)
 target_link_libraries(
   shvav-8
   PRIVATE
-  SDL2::SDL2main
-  SDL2::SDL2-static
+  SDL2main
+  SDL2-static
 )
 
 ##################################################
