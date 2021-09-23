@@ -45,48 +45,47 @@ App::App(const char* rom_path) {
     const u32 max_cycles_per_frame = 10;
 
     window.title(std::string("Shvav8 ") + rom_path);
-    window.on_key_event(
-        [&cycles_per_frame, &interpreter, &beeper](const i32 keycode, const i32 action) {
-            if (action == SHVAV8_ACTION(REPEAT)) {
-                return;
-            }
+    window.on_key_event([&](const i32 keycode, const i32 action) {
+        if (action == SHVAV8_ACTION(REPEAT)) {
+            return;
+        }
 
-            if (action == SHVAV8_ACTION(RELEASE)) {
-                switch (keycode) {
-                    case SHVAV8_KEY(RIGHT):
-                        if (cycles_per_frame == max_cycles_per_frame) {
-                            cycles_per_frame = 0;
-                            return;
-                        }
-                        cycles_per_frame += 1;
+        if (action == SHVAV8_ACTION(RELEASE)) {
+            switch (keycode) {
+                case SHVAV8_KEY(RIGHT):
+                    if (cycles_per_frame == max_cycles_per_frame) {
+                        cycles_per_frame = 0;
                         return;
-                    case SHVAV8_KEY(LEFT):
-                        if (cycles_per_frame == 0) {
-                            cycles_per_frame = max_cycles_per_frame;
-                            return;
-                        }
-                        cycles_per_frame -= 1;
+                    }
+                    cycles_per_frame += 1;
+                    return;
+                case SHVAV8_KEY(LEFT):
+                    if (cycles_per_frame == 0) {
+                        cycles_per_frame = max_cycles_per_frame;
                         return;
-                    case SHVAV8_KEY(UP):
-                        beeper.frequency(beeper.frequency() + 100);
+                    }
+                    cycles_per_frame -= 1;
+                    return;
+                case SHVAV8_KEY(UP):
+                    beeper.frequency(beeper.frequency() + 100);
+                    return;
+                case SHVAV8_KEY(DOWN):
+                    if (beeper.frequency() <= 100) {
                         return;
-                    case SHVAV8_KEY(DOWN):
-                        if (beeper.frequency() <= 100) {
-                            return;
-                        }
-                        beeper.frequency(beeper.frequency() - 100);
-                        return;
-                    case SHVAV8_KEY(SPACE):
-                        interpreter.reset();
-                        return;
-                }
+                    }
+                    beeper.frequency(beeper.frequency() - 100);
+                    return;
+                case SHVAV8_KEY(SPACE):
+                    interpreter.reset();
+                    return;
             }
+        }
 
-            if (s_keybindings.find(keycode) != s_keybindings.end()) {
-                const bool pressed = action == SHVAV8_ACTION(PRESS);
-                interpreter.set_key_state(s_keybindings[keycode], pressed);
-            }
-        });
+        if (s_keybindings.find(keycode) != s_keybindings.end()) {
+            const bool pressed = action == SHVAV8_ACTION(PRESS);
+            interpreter.set_key_state(s_keybindings[keycode], pressed);
+        }
+    });
 
     try {
         /* Loop until the user closes the window */
