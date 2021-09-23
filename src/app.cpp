@@ -44,7 +44,7 @@ App::App(const char* rom_path) {
     u32 cycles_per_frame = 5;
     const u32 max_cycles_per_frame = 10;
 
-    window.title(std::string("Shvav8 ") + rom_path);
+    window.title(std::string("Shvav-8 ") + rom_path);
     window.on_key_event([&](const i32 keycode, const i32 action) {
         if (action == SHVAV8_ACTION(REPEAT)) {
             return;
