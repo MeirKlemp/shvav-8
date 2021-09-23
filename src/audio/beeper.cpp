@@ -49,14 +49,6 @@ Beeper::Beeper(u32 frequency, i32 sample_frequency)
 
 Beeper::~Beeper() { SDL_CloseAudioDevice(m_device); }
 
-void Beeper::play(u32 frequency) {
-    m_freq = frequency;
-    m_samples_per_wave = m_sample_freq / frequency;
-    fill_sine_wave(m_wave_vector);
-
-    play();
-}
-
 void Beeper::play() {
     SDL_PauseAudioDevice(m_device, 0);
     m_playing = true;
@@ -70,6 +62,17 @@ void Beeper::stop() {
 
 bool Beeper::playing() const { return m_playing; }
 bool Beeper::beeped() const { return m_beeped; }
+u32 Beeper::frequency() const { return m_freq; }
+void Beeper::frequency(u32 frequency) {
+    if (frequency == 0) {
+        std::cerr << "Frequency cannot be 0\n";
+        return;
+    }
+
+    m_freq = frequency;
+    m_samples_per_wave = m_sample_freq / frequency;
+    fill_sine_wave(m_wave_vector);
+}
 
 void Beeper::sdl_audio_callback(void *context, u8 *buffer, const i32 length) {
     Beeper *beeper = (Beeper *)context;

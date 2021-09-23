@@ -13,12 +13,13 @@ class Beeper {
     Beeper(u32 frequency, i32 sample_frequency = 44100);
     ~Beeper();
 
-    void play(u32 frequency);
     void play();
     void stop();
 
     bool playing() const;
     bool beeped() const;
+    u32 frequency() const;
+    void frequency(u32 frequency);
 
    public:
     constexpr static f32 AMPLITUDE = 1.0f;
