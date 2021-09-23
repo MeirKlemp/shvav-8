@@ -33,7 +33,18 @@ void Shvav8::reset() {
 
 void Shvav8::set_key_state(const u8 key, const bool pressed) { m_keypad[key] = pressed; }
 
-void Shvav8::next() {
+bool Shvav8::should_beep() const { return m_reg.st > 0; }
+
+void Shvav8::update_timers() {
+    if (m_reg.dt > 0) {
+        m_reg.dt -= 1;
+    }
+    if (m_reg.st > 0) {
+        m_reg.st -= 1;
+    }
+}
+
+void Shvav8::cycle() {
     if (m_reg.pc >= m_memory.size()) {
         throw MemoryOverflowException(m_reg.pc, m_opcode);
     }
@@ -42,12 +53,6 @@ void Shvav8::next() {
     m_opcode = m_memory[m_reg.pc] << 8;
     m_opcode += m_memory[m_reg.pc + 1];
     m_reg.pc += 2;
-    if (m_reg.dt > 0) {
-        m_reg.dt -= 1;
-    }
-    if (m_reg.st > 0) {
-        m_reg.st -= 1;
-    }
 
     // decode
     const Operation op = s_optable[m_opcode >> 12];

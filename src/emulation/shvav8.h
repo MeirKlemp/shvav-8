@@ -13,10 +13,15 @@ class Shvav8 {
     Shvav8(FrameBuffer& display);
     /**
      * Runs next instruction.
+     */
+    void cycle();
+    /**
+     * Updates the delay and sound timers.
      * Should run with frequency of 60hz.
      */
-    void next();
+    void update_timers();
     void reset();
+    bool should_beep() const;
     void set_key_state(u8 key, bool pressed);
     template <typename Iterator>
     void load(Iterator& rom_it, const usize size = ROM_SIZE) {

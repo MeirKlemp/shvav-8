@@ -1,5 +1,7 @@
 #include "app.h"
 
+#include <audio/beeper.h>
+#include <defines.h>
 #include <emulation/exceptions.h>
 #include <emulation/shvav8.h>
 #include <rendering/renderer.h>
@@ -16,6 +18,7 @@ App::App(const char* rom_path) {
 
     auto& window = Window::create(640, 480, "Shvav-8");
     auto& renderer = Renderer::create();
+    Beeper beeper(1000);
 
     Shader shader = get_beauty_shader();
     shader.bind();
@@ -32,12 +35,13 @@ App::App(const char* rom_path) {
         exit(2);
     }
 
-    u8 memory[shvav8::Shvav8::ROM_SIZE];
+    u8 memory[Shvav8::ROM_SIZE];
     rom.read((char*)memory, sizeof(memory));
 
-    shvav8::FrameBuffer display;
-    shvav8::Shvav8 interpreter(display);
+    FrameBuffer display;
+    Shvav8 interpreter(display);
     interpreter.load(memory);
+    const u32 cycles_per_frame = 5;
 
     window.title(std::string("Shvav8 ") + rom_path);
     window.on_key_event([&interpreter](const i32 keycode, const i32 action) {
@@ -54,7 +58,20 @@ App::App(const char* rom_path) {
     try {
         /* Loop until the user closes the window */
         while (!window.should_close()) {
-            interpreter.next();
+            for (u32 i = 0; i < cycles_per_frame; ++i) {
+                interpreter.cycle();
+            }
+
+            if (interpreter.should_beep()) {
+                if (!beeper.playing()) {
+                    beeper.play();
+                }
+            } else {
+                if (beeper.playing() && beeper.beeped()) {
+                    beeper.stop();
+                }
+            }
+            interpreter.update_timers();
 
             renderer.clear_screen(0.1f, 0.1f, 0.1f);
 
