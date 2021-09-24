@@ -1,10 +1,10 @@
 #pragma once
 
-#include <defines.h>
-#include <emulation/frame_buffer.h>
-
 #include <algorithm>
 #include <array>
+
+#include "defines.h"
+#include "frame_buffer.h"
 
 namespace shvav8 {
 

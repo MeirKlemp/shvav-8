@@ -1,13 +1,12 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <defines.h>
 
 #include <functional>
-#include <optional>
 #include <string>
-#include <utility>
 #include <vector>
+
+#include "defines.h"
 
 #define SHVAV8_KEY(keyname) GLFW_KEY_##keyname
 #define SHVAV8_ACTION(action) GLFW_##action
@@ -29,7 +28,7 @@ class Window {
     void title(const std::string& title);
     std::string title() const;
     void on_resize(std::function<void(i32 width, i32 height)> callback);
-    void on_key_event(std::function<void(i32 keycode, i32 action)>);
+    void on_key_event(std::function<void(i32 keycode, i32 action)> callback);
     bool should_close() const;
     std::pair<i32, i32> get_size() const;
 

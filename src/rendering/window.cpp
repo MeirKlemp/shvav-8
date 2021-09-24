@@ -1,7 +1,5 @@
 #include "window.h"
 
-#include <stdexcept>
-
 namespace shvav8 {
 
 Window& Window::create(const i32 width, const i32 height, const std::string& title) {

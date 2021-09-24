@@ -2,10 +2,6 @@
 
 #include <glad/glad.h>
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 namespace shvav8 {
 
 Shader Shader::from_file(const std::string& filename) {

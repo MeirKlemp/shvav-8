@@ -1,8 +1,5 @@
 #include "beeper.h"
 
-#include <cmath>
-#include <iostream>
-
 namespace shvav8 {
 
 bool Beeper::s_initialized = false;

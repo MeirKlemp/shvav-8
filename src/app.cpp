@@ -1,15 +1,12 @@
 #include "app.h"
 
-#include <audio/beeper.h>
-#include <defines.h>
-#include <emulation/shvav8.h>
-#include <emulation/state_exception.h>
-#include <rendering/renderer.h>
-#include <rendering/shader.h>
-#include <rendering/window.h>
-
-#include <fstream>
-#include <iostream>
+#include "audio/beeper.h"
+#include "defines.h"
+#include "emulation/shvav8.h"
+#include "emulation/state_exception.h"
+#include "rendering/renderer.h"
+#include "rendering/shader.h"
+#include "rendering/window.h"
 
 namespace shvav8 {
 

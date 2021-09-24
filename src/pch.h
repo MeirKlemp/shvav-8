@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -12,6 +14,7 @@
 #include <array>
 #include <queue>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_map>

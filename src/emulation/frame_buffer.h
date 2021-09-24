@@ -1,10 +1,10 @@
 #pragma once
 
-#include <defines.h>
-
 #include <array>
 #include <iostream>
 #include <vector>
+
+#include "defines.h"
 
 namespace shvav8 {
 

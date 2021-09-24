@@ -1,10 +1,10 @@
 #pragma once
 
 #include <SDL.h>
-#include <defines.h>
 
-#include <climits>
 #include <vector>
+
+#include "defines.h"
 
 namespace shvav8 {
 

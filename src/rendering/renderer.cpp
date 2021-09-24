@@ -1,7 +1,5 @@
 #include "renderer.h"
 
-#include <array>
-
 namespace shvav8 {
 
 Renderer& Renderer::create() { return create_impl(); }

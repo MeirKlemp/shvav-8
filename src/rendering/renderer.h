@@ -1,8 +1,10 @@
 #pragma once
 
-#include <emulation/frame_buffer.h>
 #include <glad/glad.h>
-#include <rendering/window.h>
+
+#include "defines.h"
+#include "emulation/frame_buffer.h"
+#include "window.h"
 
 namespace shvav8 {
 

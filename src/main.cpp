@@ -1,6 +1,4 @@
-#include <app.h>
-
-#include <iostream>
+#include "app.h"
 
 shvav8::i32 main(shvav8::i32 argc, const char **argv) {
     if (argc != 2) {
