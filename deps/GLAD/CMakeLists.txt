@@ -1,12 +1,13 @@
+add_library(glad)
 
 target_include_directories(
-  shvav-8
-  PRIVATE
+  glad
+  PUBLIC
   include
 )
 
 target_sources(
-  shvav-8
+  glad
   PRIVATE
   src/glad.c
 )

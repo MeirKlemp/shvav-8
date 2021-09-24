@@ -15,6 +15,13 @@ target_include_directories(
   src/
 )
 
+# set pch
+target_precompile_headers(
+  shvav-8
+  PRIVATE
+  src/pch.h
+)
+
 # set compile flags
 set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
@@ -52,6 +59,11 @@ target_link_libraries(
 )
 
 add_subdirectory(deps/GLAD)
+target_link_libraries(
+  shvav-8
+  PRIVATE
+  glad
+)
 
 set(SDL_STATIC TRUE)
 set(SDL_SHARED FALSE)
