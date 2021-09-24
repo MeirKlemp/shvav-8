@@ -13,7 +13,7 @@ class StateException : public std::exception {
     // TODO: get state when implemented
     StateException(u16 pc, u16 opcode) : m_message(format_message(pc, opcode)) {}
 
-    const char* what() const override { return m_message.c_str(); }
+    const char* what() const noexcept override { return m_message.c_str(); }
 
    protected:
     virtual std::string_view name() = 0;
@@ -30,26 +30,30 @@ class StateException : public std::exception {
 };
 
 class StackOverflowException : public StateException {
-    public:
-        StackOverflowException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
-    protected:
+   public:
+    StackOverflowException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+
+   protected:
     std::string_view name() override { return "Stack overflow"; }
 };
 class StackUnderflowException : public StateException {
-    public:
-        StackUnderflowException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+   public:
+    StackUnderflowException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+
    protected:
     std::string_view name() override { return "Stack underflow"; }
 };
 class MemoryOverflowException : public StateException {
-    public:
-        MemoryOverflowException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+   public:
+    MemoryOverflowException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+
    protected:
     std::string_view name() override { return "Memory overflow"; }
 };
 class KeyOutOfRangeException : public StateException {
-    public:
-        KeyOutOfRangeException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+   public:
+    KeyOutOfRangeException(u16 pc, u16 opcode) : StateException(pc, opcode) {}
+
    protected:
     std::string_view name() override { return "Key out of range"; }
 };
