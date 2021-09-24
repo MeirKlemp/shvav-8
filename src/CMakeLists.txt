@@ -6,7 +6,6 @@ target_sources(
 
   emulation/shvav8.cpp
   emulation/frame_buffer.cpp
-  emulation/exceptions.cpp
 
   rendering/window.cpp
   rendering/renderer.cpp

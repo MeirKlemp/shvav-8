@@ -1,6 +1,6 @@
 #include "shvav8.h"
 
-#include <emulation/exceptions.h>
+#include "state_exception.h"
 
 namespace shvav8 {
 
@@ -224,21 +224,23 @@ void Shvav8::op_Fx33_ld() {
     m_memory[m_reg.i + 2] = vx % 10;
 }
 void Shvav8::op_Fx55_ld() {
-    if (m_reg.i + m_reg.v.size() > m_memory.size()) {
+    const u8 x = get_x();
+
+    if (m_reg.i + x >= m_memory.size()) {
         throw MemoryOverflowException(m_reg.pc, m_opcode);
     }
 
-    const u8 x = get_x();
     for (u8 i = 0; i <= x; ++i) {
         m_memory[m_reg.i + i] = m_reg.v[i];
     }
 }
 void Shvav8::op_Fx65_ld() {
-    if (m_reg.i + m_reg.v.size() > m_memory.size()) {
+    const u8 x = get_x();
+
+    if (m_reg.i + x >= m_memory.size()) {
         throw MemoryOverflowException(m_reg.pc, m_opcode);
     }
 
-    const u8 x = get_x();
     for (u8 i = 0; i <= x; ++i) {
         m_reg.v[i] = m_memory[m_reg.i + i];
     }

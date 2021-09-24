@@ -2,8 +2,8 @@
 
 #include <audio/beeper.h>
 #include <defines.h>
-#include <emulation/exceptions.h>
 #include <emulation/shvav8.h>
+#include <emulation/state_exception.h>
 #include <rendering/renderer.h>
 #include <rendering/shader.h>
 #include <rendering/window.h>
@@ -112,8 +112,8 @@ App::App(const char* rom_path) {
 
             window.update();
         }
-    } catch (const shvav8::Exception& e) {
-        std::cerr << e << std::endl;
+    } catch (const shvav8::StateException& e) {
+        std::cerr << e.what() << std::endl;
         std::cerr << display;
     }
 }
