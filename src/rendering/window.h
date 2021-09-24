@@ -24,7 +24,8 @@ class Window {
     static Window& get();
     ~Window();
 
-    void update();
+    void poll_events();
+    void swap_buffers();
     void title(const std::string& title);
     std::string title() const;
     void on_resize(std::function<void(i32 width, i32 height)> callback);

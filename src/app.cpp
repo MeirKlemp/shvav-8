@@ -2,6 +2,7 @@
 
 #include "audio/beeper.h"
 #include "defines.h"
+#include "emulation/frame_buffer.h"
 #include "emulation/shvav8.h"
 #include "emulation/state_exception.h"
 #include "rendering/renderer.h"
@@ -21,9 +22,11 @@ App::App(const char* rom_path) {
     shader.bind();
     shader.set_uniform_2f("screen_size", 640, 480);
 
-    window.on_resize([&renderer, &shader](const i32 width, const i32 height) {
+    bool resized = false;
+    window.on_resize([&resized, &renderer, &shader](const i32 width, const i32 height) {
         renderer.set_viewport(0, 0, width, height);
         shader.set_uniform_2f("screen_size", width, height);
+        resized = true;
     });
 
     std::ifstream rom(rom_path, std::ios::binary);
@@ -102,12 +105,18 @@ App::App(const char* rom_path) {
             }
             interpreter.update_timers();
 
-            renderer.clear_screen(0.1f, 0.1f, 0.1f);
+            if (resized || display.updated()) {
+                resized = false;
+                display.updated(false);
 
-            auto squares = display.get_drawn_pixels();
-            renderer.draw_squares(squares, squares.size());
+                auto squares = display.get_drawn_pixels();
+                renderer.clear_screen(0.1f, 0.1f, 0.1f);
+                renderer.draw_squares(squares, squares.size());
 
-            window.update();
+                window.swap_buffers();
+            }
+
+            window.poll_events();
         }
     } catch (const shvav8::StateException& e) {
         std::cerr << e.what() << std::endl;

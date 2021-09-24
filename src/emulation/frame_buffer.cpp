@@ -2,14 +2,21 @@
 
 namespace shvav8 {
 
+FrameBuffer::FrameBuffer() : m_updated(false), m_frame_buffer({0}) {}
+
 bool FrameBuffer::draw(const u32 x, const u32 y) {
     const usize i = index(x % FrameBuffer::COLUMNS, y % FrameBuffer::ROWS);
     const bool collision = m_frame_buffer[i];
     m_frame_buffer[i] ^= 1;
+
+    m_updated = true;
     return collision;
 }
 
-void FrameBuffer::clear() { m_frame_buffer.fill(0); }
+void FrameBuffer::clear() {
+    m_frame_buffer.fill(0);
+    m_updated = true;
+}
 
 std::vector<u32> FrameBuffer::get_drawn_pixels() const {
     std::vector<u32> squares;
@@ -24,6 +31,9 @@ std::vector<u32> FrameBuffer::get_drawn_pixels() const {
 }
 
 bool FrameBuffer::is_drawn(const u32 x, const u32 y) const { return m_frame_buffer[index(x, y)]; }
+
+bool FrameBuffer::updated() const { return m_updated; }
+void FrameBuffer::updated(const bool updated) { m_updated = updated; }
 
 u32 FrameBuffer::index(const u32 x, const u32 y) const { return y * FrameBuffer::COLUMNS + x; }
 

@@ -63,10 +63,9 @@ Window::~Window() {
     }
 }
 
-void Window::update() {
-    glfwSwapBuffers(m_window);
-    glfwPollEvents();
-}
+void Window::poll_events() { glfwPollEvents(); }
+
+void Window::swap_buffers() { glfwSwapBuffers(m_window); }
 
 void Window::title(const std::string& title) {
     glfwSetWindowTitle(m_window, title.c_str());

@@ -10,6 +10,8 @@ namespace shvav8 {
 
 class FrameBuffer {
    public:
+    FrameBuffer();
+
     /**
      * Draws a pixel on the display.
      * If the pixel is already 1 then a "collision" happens
@@ -28,6 +30,8 @@ class FrameBuffer {
 
     std::vector<u32> get_drawn_pixels() const;
     bool is_drawn(u32 x, u32 y) const;
+    bool updated() const;
+    void updated(bool updated);
 
    public:
     constexpr static u32 ROWS = 32;
@@ -35,8 +39,10 @@ class FrameBuffer {
     constexpr static u32 PIXELS = ROWS * COLUMNS;
 
    private:
-    std::array<bool, PIXELS> m_frame_buffer = {0};
+    bool m_updated;
+    std::array<bool, PIXELS> m_frame_buffer;
 
+   private:
     u32 index(u32 x, u32 y) const;
 
     friend std::ostream& operator<<(std::ostream& ostream, const FrameBuffer& display);
