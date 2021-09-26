@@ -107,7 +107,7 @@ App::App(const char* rom_path) {
 
             if (resized || display.updated()) {
                 resized = false;
-                display.updated(false);
+                display.set_not_updated();
 
                 auto squares = display.get_drawn_pixels();
                 renderer.clear_screen(0.1f, 0.1f, 0.1f);

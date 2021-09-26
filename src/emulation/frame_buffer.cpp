@@ -33,7 +33,7 @@ std::vector<u32> FrameBuffer::get_drawn_pixels() const {
 bool FrameBuffer::is_drawn(const u32 x, const u32 y) const { return m_frame_buffer[index(x, y)]; }
 
 bool FrameBuffer::updated() const { return m_updated; }
-void FrameBuffer::updated(const bool updated) { m_updated = updated; }
+void FrameBuffer::set_not_updated() { m_updated = false; }
 
 u32 FrameBuffer::index(const u32 x, const u32 y) const { return y * FrameBuffer::COLUMNS + x; }
 
