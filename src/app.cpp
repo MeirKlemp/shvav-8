@@ -9,21 +9,10 @@ App::App(const char* rom_path)
     : m_window(Window::create(640, 480, std::string("Shvav-8") + rom_path)),
       m_renderer(Renderer::create()),
       m_shader(s_gradient_shader),
-      m_beeper(1000),
-      m_window_resized(false),
+      m_beeper(initialize_beeper(1000)),
       m_max_cycles_per_frame(10),
       m_cycles_per_frame(5) {
     srand((u32)time(0));
-
-    Shader shader(s_gradient_shader);
-    m_shader.set_uniform_2f("screen_size", 640, 480);
-    m_shader.bind();
-
-    m_window.on_resize([&](const i32 width, const i32 height) {
-        m_renderer.set_viewport(0, 0, width, height);
-        m_shader.set_uniform_2f("screen_size", width, height);
-        m_window_resized = true;
-    });
 
     std::ifstream rom(rom_path, std::ios::binary);
     if (!rom) {
@@ -31,11 +20,16 @@ App::App(const char* rom_path)
         message << "Cannot open rom at " << rom_path;
         throw std::runtime_error{message.str()};
     }
-
     u8 memory[Shvav8::ROM_SIZE];
     rom.read((char*)memory, sizeof(memory));
     m_interpreter.load(memory);
 
+    m_shader.set_uniform_2f("screen_size", 640, 480);
+    m_shader.bind();
+    m_window.on_resize([&](const i32 width, const i32 height) {
+        m_renderer.set_viewport(0, 0, width, height);
+        m_shader.set_uniform_2f("screen_size", width, height);
+    });
     m_window.on_key_event([&](const i32 keycode, const i32 action) {
         if (action == SHVAV8_ACTION(REPEAT)) {
             return;
@@ -58,12 +52,12 @@ App::App(const char* rom_path)
                     m_cycles_per_frame -= 1;
                     return;
                 case SHVAV8_KEY(UP):
-                    if (m_beeper.has_value()) {
+                    if (m_beeper) {
                         m_beeper->frequency(m_beeper->frequency() + 100);
                     }
                     return;
                 case SHVAV8_KEY(DOWN):
-                    if (m_beeper.has_value()) {
+                    if (m_beeper) {
                         if (m_beeper->frequency() <= 100) {
                             return;
                         }
@@ -97,7 +91,7 @@ void App::run() {
             std::cerr << e.what() << std::endl;
         }
 
-        if (m_beeper.has_value()) {
+        if (m_beeper) {
             if (m_interpreter.should_beep()) {
                 if (!m_beeper->playing()) {
                     m_beeper->play();
@@ -116,6 +110,16 @@ void App::run() {
 
         m_window.swap_buffers();
         m_window.poll_events();
+    }
+}
+
+std::unique_ptr<Beeper> App::initialize_beeper(u32 frequency) {
+    try {
+        return std::make_unique<Beeper>(frequency);
+    } catch (const std::runtime_error& e) {
+        /* m_beeper is null and the app won't beep. */
+        std::cerr << "Warning: Couldn't initialize sound: " << e.what() << std::endl;
+        return nullptr;
     }
 }
 

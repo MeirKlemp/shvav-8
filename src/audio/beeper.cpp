@@ -26,29 +26,33 @@ Beeper::Beeper(u32 frequency, i32 sample_frequency)
 
     fill_sine_wave(m_wave_vector);
 
-    SDL_AudioSpec wantSpec, haveSpec;
+    SDL_AudioSpec want_spec, have_spec;
 
-    SDL_zero(wantSpec);
-    wantSpec.freq = m_sample_freq;
-    wantSpec.format = AUDIO_F32;
-    wantSpec.channels = 1;
-    wantSpec.samples = SAMPLES;
-    wantSpec.callback = sdl_audio_callback;
-    wantSpec.userdata = this;
+    SDL_zero(want_spec);
+    want_spec.freq = m_sample_freq;
+    want_spec.format = AUDIO_F32;
+    want_spec.channels = 1;
+    want_spec.samples = SAMPLES;
+    want_spec.callback = sdl_audio_callback;
+    want_spec.userdata = this;
 
-    m_device = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+    m_device = SDL_OpenAudioDevice(NULL, 0, &want_spec, &have_spec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
     if (m_device == 0) {
         std::stringstream message;
         message << "Failed to open audio: " << SDL_GetError();
         throw std::runtime_error{message.str()};
     }
-    if (wantSpec.format != haveSpec.format) {
+    if (want_spec.format != have_spec.format) {
         SDL_CloseAudioDevice(m_device);
         throw std::runtime_error{"Couldn't get Float32 audio format."};
     }
 }
 
-Beeper::~Beeper() { SDL_CloseAudioDevice(m_device); }
+Beeper::~Beeper() {
+    if (m_device) {
+        SDL_CloseAudioDevice(m_device);
+    }
+}
 
 void Beeper::play() {
     SDL_PauseAudioDevice(m_device, 0);

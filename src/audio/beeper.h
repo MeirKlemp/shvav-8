@@ -31,6 +31,7 @@ class Beeper {
     bool m_playing;
     bool m_beeped;
     std::vector<f32> m_wave_vector;
+
     u32 m_device;
 
     static bool s_initialized;
