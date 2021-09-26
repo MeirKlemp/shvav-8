@@ -82,27 +82,32 @@ App::App(const char* rom_path)
 
 void App::run() {
     /* Loop until the user closes the window */
+    f64 loops = 0;
+    f64 fps = 0;
+    clock_t c = clock();
     while (!m_window.should_close()) {
-        try {
-            for (u32 i = 0; i < m_cycles_per_frame; ++i) {
-                m_interpreter.cycle();
+        for (; loops >= 1; --loops) {
+            try {
+                for (u32 i = 0; i < m_cycles_per_frame; ++i) {
+                    m_interpreter.cycle();
+                }
+            } catch (const StateException& e) {
+                std::cerr << e.what() << std::endl;
             }
-        } catch (const StateException& e) {
-            std::cerr << e.what() << std::endl;
-        }
 
-        if (m_beeper) {
-            if (m_interpreter.should_beep()) {
-                if (!m_beeper->playing()) {
-                    m_beeper->play();
-                }
-            } else {
-                if (m_beeper->playing() && m_beeper->beeped()) {
-                    m_beeper->stop();
+            if (m_beeper) {
+                if (m_interpreter.should_beep()) {
+                    if (!m_beeper->playing()) {
+                        m_beeper->play();
+                    }
+                } else {
+                    if (m_beeper->playing() && m_beeper->beeped()) {
+                        m_beeper->stop();
+                    }
                 }
             }
+            m_interpreter.update_timers();
         }
-        m_interpreter.update_timers();
 
         auto squares = m_interpreter.get_drawn_pixels();
         m_renderer.clear_screen(0.1f, 0.1f, 0.1f);
@@ -110,6 +115,16 @@ void App::run() {
 
         m_window.swap_buffers();
         m_window.poll_events();
+
+        f64 new_fps = CLOCKS_PER_SEC / (f64)(clock() - c);
+        if (fps) {
+            fps = 0.8 * fps + 0.2 * new_fps;
+        } else {
+            fps = new_fps;
+        }
+        loops += 60.0 / fps;
+
+        c = clock();
     }
 }
 
