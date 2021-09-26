@@ -35,8 +35,6 @@ class Shvav8 {
     }
 
     std::vector<u32> get_drawn_pixels() const;
-    bool display_updated() const;
-    void set_display_not_updated();
 
    public:
     constexpr static u16 PC_INIT = 0x200;

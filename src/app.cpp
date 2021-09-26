@@ -6,12 +6,12 @@
 namespace shvav8 {
 
 App::App(const char* rom_path)
-    : max_cycles_per_frame(10),
-      m_window(Window::create(640, 480, std::string("Shvav-8") + rom_path)),
+    : m_window(Window::create(640, 480, std::string("Shvav-8") + rom_path)),
       m_renderer(Renderer::create()),
       m_shader(s_gradient_shader),
       m_beeper(1000),
       m_window_resized(false),
+      m_max_cycles_per_frame(10),
       m_cycles_per_frame(5) {
     srand((u32)time(0));
 
@@ -44,7 +44,7 @@ App::App(const char* rom_path)
         if (action == SHVAV8_ACTION(RELEASE)) {
             switch (keycode) {
                 case SHVAV8_KEY(RIGHT):
-                    if (m_cycles_per_frame == max_cycles_per_frame) {
+                    if (m_cycles_per_frame == m_max_cycles_per_frame) {
                         m_cycles_per_frame = 0;
                         return;
                     }
@@ -52,7 +52,7 @@ App::App(const char* rom_path)
                     return;
                 case SHVAV8_KEY(LEFT):
                     if (m_cycles_per_frame == 0) {
-                        m_cycles_per_frame = max_cycles_per_frame;
+                        m_cycles_per_frame = m_max_cycles_per_frame;
                         return;
                     }
                     m_cycles_per_frame -= 1;
@@ -110,17 +110,11 @@ void App::run() {
         }
         m_interpreter.update_timers();
 
-        if (m_window_resized || m_interpreter.display_updated()) {
-            m_window_resized = false;
-            m_interpreter.set_display_not_updated();
+        auto squares = m_interpreter.get_drawn_pixels();
+        m_renderer.clear_screen(0.1f, 0.1f, 0.1f);
+        m_renderer.draw_squares(squares, squares.size());
 
-            auto squares = m_interpreter.get_drawn_pixels();
-            m_renderer.clear_screen(0.1f, 0.1f, 0.1f);
-            m_renderer.draw_squares(squares, squares.size());
-
-            m_window.swap_buffers();
-        }
-
+        m_window.swap_buffers();
         m_window.poll_events();
     }
 }

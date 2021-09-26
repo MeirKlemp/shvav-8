@@ -46,8 +46,6 @@ Beeper::Beeper(u32 frequency, i32 sample_frequency)
         SDL_CloseAudioDevice(m_device);
         throw std::runtime_error{"Couldn't get Float32 audio format."};
     }
-
-    // throw std::exception{"test"};
 }
 
 Beeper::~Beeper() { SDL_CloseAudioDevice(m_device); }

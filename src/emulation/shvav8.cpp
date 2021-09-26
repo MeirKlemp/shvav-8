@@ -40,8 +40,6 @@ void Shvav8::set_key_state(const u8 key, const bool pressed) {
 }
 
 std::vector<u32> Shvav8::get_drawn_pixels() const { return m_display.get_drawn_pixels(); }
-bool Shvav8::display_updated() const { return m_display.updated(); }
-void Shvav8::set_display_not_updated() { m_display.set_not_updated(); }
 
 bool Shvav8::should_beep() const { return m_reg.st > 0; }
 

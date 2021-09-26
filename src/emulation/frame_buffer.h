@@ -30,8 +30,6 @@ class FrameBuffer {
 
     std::vector<u32> get_drawn_pixels() const;
     bool is_drawn(u32 x, u32 y) const;
-    bool updated() const;
-    void set_not_updated();
 
    public:
     constexpr static u32 ROWS = 32;
@@ -39,7 +37,6 @@ class FrameBuffer {
     constexpr static u32 PIXELS = ROWS * COLUMNS;
 
    private:
-    bool m_updated;
     std::array<bool, PIXELS> m_frame_buffer;
 
    private:

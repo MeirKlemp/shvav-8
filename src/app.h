@@ -18,10 +18,6 @@ class App {
 
     void run();
 
-    /* settings */
-   public:
-    u32 max_cycles_per_frame;
-
    private:
     Window& m_window;
     Renderer& m_renderer;
@@ -29,6 +25,7 @@ class App {
     std::optional<Beeper> m_beeper;
     Shvav8 m_interpreter;
     bool m_window_resized;
+    u32 m_max_cycles_per_frame;
     u32 m_cycles_per_frame;
 
     static const char* s_normal_shader;
