@@ -31,6 +31,7 @@ class Window {
     void on_resize(std::function<void(i32 width, i32 height)> callback);
     void on_key_event(std::function<void(i32 keycode, i32 action)> callback);
     bool should_close() const;
+    void close();
     std::pair<i32, i32> get_size() const;
 
     Window(const Window&) = delete;

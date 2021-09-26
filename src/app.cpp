@@ -73,6 +73,9 @@ App::App(const char* rom_path)
                 case SHVAV8_KEY(SPACE):
                     m_interpreter.reset();
                     return;
+                case SHVAV8_KEY(ESCAPE):
+                    m_window.close();
+                    return;
             }
         }
 

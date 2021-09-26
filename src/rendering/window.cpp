@@ -79,6 +79,7 @@ void Window::on_key_event(std::function<void(i32 keycode, i32 action)> callback)
 }
 
 bool Window::should_close() const { return glfwWindowShouldClose(m_window); }
+void Window::close() { glfwSetWindowShouldClose(m_window, GLFW_TRUE); }
 std::pair<i32, i32> Window::get_size() const {
     i32 width, height;
     glfwGetWindowSize(m_window, &width, &height);
