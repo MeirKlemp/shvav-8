@@ -58,9 +58,7 @@ u32 Shader::get_uniform_location(const std::string& name) {
 
     int location = glGetUniformLocation(m_prog_id, name.c_str());
 
-    if (location == -1) {
-        std::cerr << "Warning: uniform " << name << " doesn't exist." << std::endl;
-    }
+    assert(location != -1);
 
     m_uniform_location_cache[name] = location;
     return location;
@@ -76,21 +74,20 @@ u32 Shader::compile_shader(u32 shader_type, const std::string& source) {
     int result;
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &result);
 
-    /* Error handling. */
     if (result == GL_FALSE) {
-        std::cerr << "Failed to compile "
-                  << (shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader.\n";
-
         int length;
         glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &length);
 
-        char* info = new char[length * sizeof(char)];
-        glGetShaderInfoLog(shader_id, length, &length, info);
-        std::cerr << info << std::endl;
-        delete[] info;
+        std::string info(length * sizeof(char), '\0');
+        glGetShaderInfoLog(shader_id, length, &length, &info[0]);
 
         glDeleteShader(shader_id);
-        return 0;
+
+        std::stringstream message;
+        message << "Failed to compile " << (shader_type == GL_VERTEX_SHADER ? "vertex" : "fragment")
+                << " shader.\n"
+                << "Info: " << info;
+        throw std::runtime_error{message.str()};
     }
 
     return shader_id;
@@ -104,7 +101,26 @@ u32 Shader::create_shader(const std::string& vertex_shader, const std::string& f
     glAttachShader(program_id, vertex_shader_id);
     glAttachShader(program_id, fragment_shader_id);
     glLinkProgram(program_id);
-    glValidateProgram(program_id);
+
+    int result;
+    glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+
+    if (result == GL_FALSE) {
+        int length;
+        glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &length);
+
+        std::string info(length * sizeof(char), '\0');
+        glGetProgramInfoLog(program_id, length, &length, &info[0]);
+
+        glDeleteProgram(program_id);
+        glDeleteShader(vertex_shader_id);
+        glDeleteShader(fragment_shader_id);
+
+        std::stringstream message;
+        message << "Failed to link program shader.\n"
+                << "Info: " << info;
+        throw std::runtime_error{message.str()};
+    }
 
     glDeleteShader(vertex_shader_id);
     glDeleteShader(fragment_shader_id);

@@ -31,7 +31,13 @@ void Shvav8::reset() {
     m_display.clear();
 }
 
-void Shvav8::set_key_state(const u8 key, const bool pressed) { m_keypad[key] = pressed; }
+void Shvav8::set_key_state(const u8 key, const bool pressed) {
+    if (key >= m_keypad.size()) {
+        throw std::out_of_range("Key index is greater than 15");
+    }
+
+    m_keypad[key] = pressed;
+}
 
 std::vector<u32> Shvav8::get_drawn_pixels() const { return m_display.get_drawn_pixels(); }
 bool Shvav8::display_updated() const { return m_display.updated(); }
@@ -200,18 +206,14 @@ void Shvav8::op_ExA1_sknp() {
 }
 void Shvav8::op_Fx07_ld() { m_reg.v[get_x()] = m_reg.dt; }
 void Shvav8::op_Fx0A_ld() {
-    i8 keypress = -1;
     for (u8 i = 0; i < m_keypad.size(); ++i) {
         if (m_keypad[i]) {
-            keypress = i;
+            m_reg.v[get_x()] = m_keypad[i];
+            return;
         }
     }
 
-    if (keypress == -1) {
-        m_reg.pc -= 2;
-    } else {
-        m_reg.v[get_x()] = keypress;
-    }
+    m_reg.pc -= 2;
 }
 void Shvav8::op_Fx15_ld() { m_reg.dt = m_reg.v[get_x()]; }
 void Shvav8::op_Fx18_ld() { m_reg.st = m_reg.v[get_x()]; }

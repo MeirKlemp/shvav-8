@@ -4,7 +4,6 @@
 
 #include "defines.h"
 #include "emulation/frame_buffer.h"
-#include "window.h"
 
 namespace shvav8 {
 
@@ -73,8 +72,8 @@ class Renderer {
     constexpr static f32 SQUARE_WIDTH = 1.0f / FrameBuffer::COLUMNS;
     constexpr static f32 SQUARE_HEIGHT = 1.0f / FrameBuffer::ROWS;
 
-    using VertexVector = std::array<f32, 2 * NUM_VERTICES>;
-    constexpr static VertexVector initialize_vertices();
+    using VertexArray = std::array<f32, 2 * NUM_VERTICES>;
+    constexpr static VertexArray initialize_vertices();
 };
 
 }  // namespace shvav8

@@ -14,8 +14,9 @@ Beeper::Beeper(u32 frequency, i32 sample_frequency)
       m_wave_vector(m_samples_per_wave) {
     if (!s_initialized) {
         if (SDL_Init(SDL_INIT_AUDIO) != 0) {
-            std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
-            return;
+            std::stringstream message;
+            message << "Failed to initialize SDL: " << SDL_GetError();
+            throw std::runtime_error{message.str()};
         }
 
         s_initialized = true;
@@ -35,12 +36,13 @@ Beeper::Beeper(u32 frequency, i32 sample_frequency)
 
     m_device = SDL_OpenAudioDevice(NULL, 0, &wantSpec, &haveSpec, SDL_AUDIO_ALLOW_FORMAT_CHANGE);
     if (m_device == 0) {
-        std::cerr << "Failed to open audio: " << SDL_GetError() << std::endl;
-        return;
+        std::stringstream message;
+        message << "Failed to open audio: " << SDL_GetError();
+        throw std::runtime_error { message.str() }
     }
     if (wantSpec.format != haveSpec.format) {
-        std::cerr << "Couldn't get Float32 audio format.\n";
-        return;
+        SDL_CloseAudioDevice(m_device);
+        throw std::runtime_error { "Couldn't get Float32 audio format." }
     }
 }
 
@@ -62,8 +64,7 @@ bool Beeper::beeped() const { return m_beeped; }
 u32 Beeper::frequency() const { return m_freq; }
 void Beeper::frequency(u32 frequency) {
     if (frequency == 0) {
-        std::cerr << "Frequency cannot be 0\n";
-        return;
+        throw std::invalid_argument{"Frequency cannot be 0\n"};
     }
 
     m_freq = frequency;

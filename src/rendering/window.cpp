@@ -53,15 +53,11 @@ Window& Window::create_impl(const i32 width, const i32 height, const std::string
 
 Window::Window(GLFWwindow* window, const std::string& title) : m_window(window), m_title(title) {
     if (window == nullptr) {
-        throw std::runtime_error{"Window not initialized"};
+        throw std::logic_error{"Window not initialized"};
     }
 }
 
-Window::~Window() {
-    if (m_window) {
-        glfwTerminate();
-    }
-}
+Window::~Window() { glfwTerminate(); }
 
 void Window::poll_events() { glfwPollEvents(); }
 

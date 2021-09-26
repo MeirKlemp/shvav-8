@@ -11,114 +11,122 @@
 namespace shvav8 {
 
 App::App(const char* rom_path) {
-    srand((u32)time(0));
-
-    auto& window = Window::create(640, 480, "Shvav-8");
-    auto& renderer = Renderer::create();
-    Beeper beeper(1000);
-
-    Shader shader = get_beauty_shader();
-    shader.bind();
-    shader.set_uniform_2f("screen_size", 640, 480);
-
-    bool resized = false;
-    window.on_resize([&resized, &renderer, &shader](const i32 width, const i32 height) {
-        renderer.set_viewport(0, 0, width, height);
-        shader.set_uniform_2f("screen_size", width, height);
-        resized = true;
-    });
-
-    std::ifstream rom(rom_path, std::ios::binary);
-    if (!rom) {
-        std::cerr << "Cannot open rom at " << rom_path << std::endl;
-        exit(2);
-    }
-
-    u8 memory[Shvav8::ROM_SIZE];
-    rom.read((char*)memory, sizeof(memory));
-
-    Shvav8 interpreter;
-    interpreter.load(memory);
-    u32 cycles_per_frame = 5;
-    const u32 max_cycles_per_frame = 10;
-
-    window.title(std::string("Shvav-8 ") + rom_path);
-    window.on_key_event([&](const i32 keycode, const i32 action) {
-        if (action == SHVAV8_ACTION(REPEAT)) {
-            return;
-        }
-
-        if (action == SHVAV8_ACTION(RELEASE)) {
-            switch (keycode) {
-                case SHVAV8_KEY(RIGHT):
-                    if (cycles_per_frame == max_cycles_per_frame) {
-                        cycles_per_frame = 0;
-                        return;
-                    }
-                    cycles_per_frame += 1;
-                    return;
-                case SHVAV8_KEY(LEFT):
-                    if (cycles_per_frame == 0) {
-                        cycles_per_frame = max_cycles_per_frame;
-                        return;
-                    }
-                    cycles_per_frame -= 1;
-                    return;
-                case SHVAV8_KEY(UP):
-                    beeper.frequency(beeper.frequency() + 100);
-                    return;
-                case SHVAV8_KEY(DOWN):
-                    if (beeper.frequency() <= 100) {
-                        return;
-                    }
-                    beeper.frequency(beeper.frequency() - 100);
-                    return;
-                case SHVAV8_KEY(SPACE):
-                    interpreter.reset();
-                    return;
-            }
-        }
-
-        if (s_keybindings.find(keycode) != s_keybindings.end()) {
-            const bool pressed = action == SHVAV8_ACTION(PRESS);
-            interpreter.set_key_state(s_keybindings[keycode], pressed);
-        }
-    });
-
+#ifndef NDEBUG
     try {
-        /* Loop until the user closes the window */
-        while (!window.should_close()) {
-            for (u32 i = 0; i < cycles_per_frame; ++i) {
-                interpreter.cycle();
-            }
+#endif
+        srand((u32)time(0));
 
-            if (interpreter.should_beep()) {
-                if (!beeper.playing()) {
-                    beeper.play();
-                }
-            } else {
-                if (beeper.playing() && beeper.beeped()) {
-                    beeper.stop();
-                }
-            }
-            interpreter.update_timers();
+        auto& window = Window::create(640, 480, "Shvav-8");
+        auto& renderer = Renderer::create();
+        Beeper beeper(1000);
 
-            if (resized || interpreter.display_updated()) {
-                resized = false;
-                interpreter.set_display_not_updated();
+        Shader shader = get_beauty_shader();
+        shader.bind();
+        shader.set_uniform_2f("screen_size", 640, 480);
 
-                auto squares = interpreter.get_drawn_pixels();
-                renderer.clear_screen(0.1f, 0.1f, 0.1f);
-                renderer.draw_squares(squares, squares.size());
+        bool resized = false;
+        window.on_resize([&resized, &renderer, &shader](const i32 width, const i32 height) {
+            renderer.set_viewport(0, 0, width, height);
+            shader.set_uniform_2f("screen_size", width, height);
+            resized = true;
+        });
 
-                window.swap_buffers();
-            }
-
-            window.poll_events();
+        std::ifstream rom(rom_path, std::ios::binary);
+        if (!rom) {
+            std::cerr << "Cannot open rom at " << rom_path << std::endl;
+            exit(2);
         }
-    } catch (const shvav8::StateException& e) {
+
+        u8 memory[Shvav8::ROM_SIZE];
+        rom.read((char*)memory, sizeof(memory));
+
+        Shvav8 interpreter;
+        interpreter.load(memory);
+        u32 cycles_per_frame = 5;
+        const u32 max_cycles_per_frame = 10;
+
+        window.title(std::string("Shvav-8 ") + rom_path);
+        window.on_key_event([&](const i32 keycode, const i32 action) {
+            if (action == SHVAV8_ACTION(REPEAT)) {
+                return;
+            }
+
+            if (action == SHVAV8_ACTION(RELEASE)) {
+                switch (keycode) {
+                    case SHVAV8_KEY(RIGHT):
+                        if (cycles_per_frame == max_cycles_per_frame) {
+                            cycles_per_frame = 0;
+                            return;
+                        }
+                        cycles_per_frame += 1;
+                        return;
+                    case SHVAV8_KEY(LEFT):
+                        if (cycles_per_frame == 0) {
+                            cycles_per_frame = max_cycles_per_frame;
+                            return;
+                        }
+                        cycles_per_frame -= 1;
+                        return;
+                    case SHVAV8_KEY(UP):
+                        beeper.frequency(beeper.frequency() + 100);
+                        return;
+                    case SHVAV8_KEY(DOWN):
+                        if (beeper.frequency() <= 100) {
+                            return;
+                        }
+                        beeper.frequency(beeper.frequency() - 100);
+                        return;
+                    case SHVAV8_KEY(SPACE):
+                        interpreter.reset();
+                        return;
+                }
+            }
+
+            if (s_keybindings.find(keycode) != s_keybindings.end()) {
+                const bool pressed = action == SHVAV8_ACTION(PRESS);
+                interpreter.set_key_state(s_keybindings[keycode], pressed);
+            }
+        });
+
+        try {
+            /* Loop until the user closes the window */
+            while (!window.should_close()) {
+                for (u32 i = 0; i < cycles_per_frame; ++i) {
+                    interpreter.cycle();
+                }
+
+                if (interpreter.should_beep()) {
+                    if (!beeper.playing()) {
+                        beeper.play();
+                    }
+                } else {
+                    if (beeper.playing() && beeper.beeped()) {
+                        beeper.stop();
+                    }
+                }
+                interpreter.update_timers();
+
+                if (resized || interpreter.display_updated()) {
+                    resized = false;
+                    interpreter.set_display_not_updated();
+
+                    auto squares = interpreter.get_drawn_pixels();
+                    renderer.clear_screen(0.1f, 0.1f, 0.1f);
+                    renderer.draw_squares(squares, squares.size());
+
+                    window.swap_buffers();
+                }
+
+                window.poll_events();
+            }
+        } catch (const StateException& e) {
+            std::cerr << e.what() << std::endl;
+        }
+#ifndef NDEBUG
+    } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
     }
+#endif
 }
 
 std::unordered_map<i32, u8> App::s_keybindings{

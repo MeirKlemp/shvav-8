@@ -45,6 +45,8 @@ class Window {
     std::string m_title;
     std::vector<std::function<void(i32 width, i32 height)>> m_on_resize_callbacks;
     std::vector<std::function<void(i32 keycode, i32 action)>> m_on_key_event_callbacks;
+
+   public:
 };
 
 }  // namespace shvav8

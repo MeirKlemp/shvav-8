@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+#include "window.h"
+
 namespace shvav8 {
 
 Renderer& Renderer::create() { return create_impl(); }
@@ -20,7 +22,7 @@ Renderer::Renderer() {
     glGenVertexArrays(1, &m_vao);
     glBindVertexArray(m_vao);
 
-    VertexVector vertices = initialize_vertices();
+    VertexArray vertices = initialize_vertices();
     glGenBuffers(1, &m_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices[0], GL_STATIC_DRAW);
@@ -55,8 +57,8 @@ void Renderer::set_viewport(const i32 x, const i32 y, const i32 width, const i32
     glViewport(x, y, width, height);
 }
 
-constexpr Renderer::VertexVector Renderer::initialize_vertices() {
-    VertexVector vertices = {};
+constexpr Renderer::VertexArray Renderer::initialize_vertices() {
+    VertexArray vertices = {};
     for (u32 row = 0; row < VERTEX_ROWS; ++row) {
         for (u32 column = 0; column < VERTEX_COLUMNS; ++column) {
             u32 index = 2 * (VERTEX_COLUMNS * row + column);
