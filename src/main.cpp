@@ -7,4 +7,7 @@ shvav8::i32 main(shvav8::i32 argc, const char **argv) {
     }
 
     shvav8::App app(argv[1]);
+    app.run();
+
+    return 0;
 }

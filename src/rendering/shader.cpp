@@ -102,6 +102,9 @@ u32 Shader::create_shader(const std::string& vertex_shader, const std::string& f
     glAttachShader(program_id, fragment_shader_id);
     glLinkProgram(program_id);
 
+    glDeleteShader(vertex_shader_id);
+    glDeleteShader(fragment_shader_id);
+
     int result;
     glGetProgramiv(program_id, GL_LINK_STATUS, &result);
 
@@ -113,17 +116,12 @@ u32 Shader::create_shader(const std::string& vertex_shader, const std::string& f
         glGetProgramInfoLog(program_id, length, &length, &info[0]);
 
         glDeleteProgram(program_id);
-        glDeleteShader(vertex_shader_id);
-        glDeleteShader(fragment_shader_id);
 
         std::stringstream message;
         message << "Failed to link program shader.\n"
                 << "Info: " << info;
         throw std::runtime_error{message.str()};
     }
-
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_id);
 
     return program_id;
 }

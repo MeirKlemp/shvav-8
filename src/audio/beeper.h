@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL.h>
-
 #include <vector>
 
 #include "defines.h"
@@ -33,7 +31,7 @@ class Beeper {
     bool m_playing;
     bool m_beeped;
     std::vector<f32> m_wave_vector;
-    SDL_AudioDeviceID m_device;
+    u32 m_device;
 
     static bool s_initialized;
 

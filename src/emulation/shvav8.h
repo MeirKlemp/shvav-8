@@ -25,8 +25,13 @@ class Shvav8 {
     void set_key_state(u8 key, bool pressed);
     template <typename Iterator>
     void load(Iterator& rom_it, const usize size = ROM_SIZE) {
-        const usize clamped_size = std::min<usize>(size, ROM_SIZE);
-        std::copy_n(rom_it, clamped_size, m_memory.begin() + PC_INIT);
+        if (size > ROM_SIZE) {
+            std::stringstream message;
+            message << "ROM size cannot be greater than " << ROM_SIZE;
+            throw std::out_of_range{message.str()};
+        }
+
+        std::copy_n(rom_it, size, m_memory.begin() + PC_INIT);
     }
 
     std::vector<u32> get_drawn_pixels() const;

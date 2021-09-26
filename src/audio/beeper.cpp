@@ -1,5 +1,7 @@
 #include "beeper.h"
 
+#include <SDL.h>
+
 namespace shvav8 {
 
 bool Beeper::s_initialized = false;
@@ -38,12 +40,14 @@ Beeper::Beeper(u32 frequency, i32 sample_frequency)
     if (m_device == 0) {
         std::stringstream message;
         message << "Failed to open audio: " << SDL_GetError();
-        throw std::runtime_error { message.str() }
+        throw std::runtime_error{message.str()};
     }
     if (wantSpec.format != haveSpec.format) {
         SDL_CloseAudioDevice(m_device);
-        throw std::runtime_error { "Couldn't get Float32 audio format." }
+        throw std::runtime_error{"Couldn't get Float32 audio format."};
     }
+
+    // throw std::exception{"test"};
 }
 
 Beeper::~Beeper() { SDL_CloseAudioDevice(m_device); }
