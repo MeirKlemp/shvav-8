@@ -4,8 +4,9 @@
 
 namespace shvav8 {
 
-Shvav8::Shvav8(FrameBuffer& display)
-    : m_memory{ // builtin font-set
+Shvav8::Shvav8()
+    : m_memory{
+          // builtin font-set
           0xF0, 0x90, 0x90, 0x90, 0xF0,  // 0
           0x20, 0x60, 0x20, 0x20, 0x70,  // 1
           0xF0, 0x10, 0xF0, 0x80, 0xF0,  // 2
@@ -22,8 +23,7 @@ Shvav8::Shvav8(FrameBuffer& display)
           0xE0, 0x90, 0x90, 0x90, 0xE0,  // D
           0xF0, 0x80, 0xF0, 0x80, 0xF0,  // E
           0xF0, 0x80, 0xF0, 0x80, 0x80,  // F
-      },
-	m_display(display) {}
+      } {}
 
 void Shvav8::reset() {
     m_reg = Shvav8::Registers();
@@ -32,6 +32,10 @@ void Shvav8::reset() {
 }
 
 void Shvav8::set_key_state(const u8 key, const bool pressed) { m_keypad[key] = pressed; }
+
+std::vector<u32> Shvav8::get_drawn_pixels() const { return m_display.get_drawn_pixels(); }
+bool Shvav8::display_updated() const { return m_display.updated(); }
+void Shvav8::set_display_not_updated() { m_display.set_not_updated(); }
 
 bool Shvav8::should_beep() const { return m_reg.st > 0; }
 

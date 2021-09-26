@@ -2,7 +2,6 @@
 
 #include "audio/beeper.h"
 #include "defines.h"
-#include "emulation/frame_buffer.h"
 #include "emulation/shvav8.h"
 #include "emulation/state_exception.h"
 #include "rendering/renderer.h"
@@ -38,8 +37,7 @@ App::App(const char* rom_path) {
     u8 memory[Shvav8::ROM_SIZE];
     rom.read((char*)memory, sizeof(memory));
 
-    FrameBuffer display;
-    Shvav8 interpreter(display);
+    Shvav8 interpreter;
     interpreter.load(memory);
     u32 cycles_per_frame = 5;
     const u32 max_cycles_per_frame = 10;
@@ -105,11 +103,11 @@ App::App(const char* rom_path) {
             }
             interpreter.update_timers();
 
-            if (resized || display.updated()) {
+            if (resized || interpreter.display_updated()) {
                 resized = false;
-                display.set_not_updated();
+                interpreter.set_display_not_updated();
 
-                auto squares = display.get_drawn_pixels();
+                auto squares = interpreter.get_drawn_pixels();
                 renderer.clear_screen(0.1f, 0.1f, 0.1f);
                 renderer.draw_squares(squares, squares.size());
 
@@ -120,7 +118,6 @@ App::App(const char* rom_path) {
         }
     } catch (const shvav8::StateException& e) {
         std::cerr << e.what() << std::endl;
-        std::cerr << display;
     }
 }
 

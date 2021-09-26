@@ -10,7 +10,7 @@ namespace shvav8 {
 
 class Shvav8 {
    public:
-    Shvav8(FrameBuffer& display);
+    Shvav8();
     /**
      * Runs next instruction.
      */
@@ -28,6 +28,10 @@ class Shvav8 {
         const usize clamped_size = std::min<usize>(size, ROM_SIZE);
         std::copy_n(rom_it, clamped_size, m_memory.begin() + PC_INIT);
     }
+
+    std::vector<u32> get_drawn_pixels() const;
+    bool display_updated() const;
+    void set_display_not_updated();
 
    public:
     constexpr static u16 PC_INIT = 0x200;
@@ -50,7 +54,7 @@ class Shvav8 {
     std::array<u16, 0x10> m_stack;
     std::array<u8, MEMORY_SIZE> m_memory;
     std::array<bool, KEYS> m_keypad = {false};
-    FrameBuffer& m_display;
+    FrameBuffer m_display;
 
     u16 m_opcode;
 
