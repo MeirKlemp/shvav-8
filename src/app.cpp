@@ -86,7 +86,6 @@ void App::run() {
 
     /* Loop until the user closes the window */
     while (!m_window.should_close()) {
-        std::cout << "loops: " << fps.loops() << std::endl;
         for (u32 i = 0; i < fps.loops(); ++i) {
             try {
                 for (u32 i = 0; i < m_cycles_per_frame; ++i) {
