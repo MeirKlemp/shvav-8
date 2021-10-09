@@ -3,6 +3,7 @@ target_sources(
   PRIVATE
   main.cpp
   app.cpp
+  fps.cpp
 
   emulation/shvav8.cpp
   emulation/frame_buffer.cpp

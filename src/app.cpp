@@ -2,6 +2,7 @@
 
 #include "defines.h"
 #include "emulation/state_exception.h"
+#include "fps.h"
 
 namespace shvav8 {
 
@@ -81,12 +82,12 @@ App::App(const char* rom_path)
 }
 
 void App::run() {
+    Fps fps(60);
+
     /* Loop until the user closes the window */
-    f64 loops = 0;
-    f64 fps = 0;
-    clock_t c = clock();
     while (!m_window.should_close()) {
-        for (; loops >= 1; --loops) {
+        std::cout << "loops: " << fps.loops() << std::endl;
+        for (u32 i = 0; i < fps.loops(); ++i) {
             try {
                 for (u32 i = 0; i < m_cycles_per_frame; ++i) {
                     m_interpreter.cycle();
@@ -116,15 +117,7 @@ void App::run() {
         m_window.swap_buffers();
         m_window.poll_events();
 
-        f64 new_fps = CLOCKS_PER_SEC / (f64)(clock() - c);
-        if (fps) {
-            fps = 0.8 * fps + 0.2 * new_fps;
-        } else {
-            fps = new_fps;
-        }
-        loops += 60.0 / fps;
-
-        c = clock();
+        fps.update();
     }
 }
 
