@@ -23,7 +23,7 @@ $ cmake --build .
 ## Usage
 ``` shell
 $ ./shvav-8
-Usage: C:\Users\Meir\Desktop\shvav-8\build\shvav-8.exe <ROM>
+Usage: ./shvav-8.exe <ROM>
 ```
 ROM is the path for the Chip-8 game.
 
