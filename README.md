@@ -2,7 +2,5 @@
 Chip-8 interpreter
 
 # Showcase
-
-
-https://user-images.githubusercontent.com/50945641/139578183-fcdd2bf8-6818-49cc-84aa-e7e6c4c54b9f.mp4
+https://user-images.githubusercontent.com/50945641/139578249-67ee38bf-4e5f-422b-acc0-07617261576f.mp4
 
