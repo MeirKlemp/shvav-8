@@ -1,5 +1,5 @@
-name: CI
-on: [push]
+name: Create Artifact
+on: [workflow_dispatch]
 
 jobs:
   build-linux:
@@ -42,6 +42,21 @@ jobs:
                 cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release 
                 cmake --build .
 
+          - name: Install shvav-8
+            run: |
+                cd build
+                mkdir install
+                mkdir install/bin
+                cp ./shvav-8 ./install/bin/shvav-8
+                cp ../LICENSE ./install/LICENSE
+                cp ../README.md ./install/README.md
+
+          - name: Upload shvav-8 package
+            uses: actions/upload-artifact@v2
+            with:
+                name: shvav-8-linux-${{matrix.c_compiler}}
+                path: build/install/
+
   build-macos:
       name: macos-clang
       runs-on: macos-latest
@@ -68,6 +83,18 @@ jobs:
                 cd build
                 cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release 
                 cmake --build .
+
+          - name: Install shvav-8
+            run: |
+                cd build
+                cmake --install . --prefix ./install
+
+          - name: Upload shvav-8 package
+            uses: actions/upload-artifact@v2
+            with:
+                name: shvav-8-macos-clang
+                path: build/install/
+
 
   build-windows:
       name: windows-${{matrix.arch}}-msvc
@@ -105,3 +132,13 @@ jobs:
                 cmake -G Ninja .. -DCMAKE_BUILD_TYPE=Release -DHAVE_LIBC=TRUE
                 cmake --build .
 
+          - name: Install shvav-8
+            run: |
+                cd build
+                cmake --install . --prefix ./install
+
+          - name: Upload shvav-8 package
+            uses: actions/upload-artifact@v2
+            with:
+                name: shvav-8-windows-${{matrix.arch}}-msvc
+                path: build/install/
