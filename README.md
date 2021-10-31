@@ -2,8 +2,8 @@
 Shvav-8 is a Cross-Platform Chip-8 emulator(Shvav is Chip in Hebrew)
 
 ## About
-I developed this project to learn emulation and graphics development - areas that interest me very much.
-I started with simple steps, creating a Chip-8 emulator - simple emulation and simple graphics.
+I developed this project to learn emulation and graphics development - areas that interest me very much. \
+I started with simple steps, creating a Chip-8 emulator - simple emulation and simple graphics. \
 Shvav-8 uses CMake as its build system, OpenGL to render its graphics, and SDL2 as a sound library.
 
 ## Showcase
